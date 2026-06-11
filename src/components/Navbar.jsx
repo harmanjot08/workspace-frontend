@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store';
 import { Zap } from 'lucide-react';
-export default function NavBar() {
+export default function Navbar() {
     const { isAuthenticated } = useAuthStore();
     return (
         <nav className="fixed top-0 left-0 right-0 bg-white border-b border-slate-200 z-50 py-4 px-8">

@@ -1,4 +1,4 @@
-import NavBar from '../../components/NavBar';
+import Navbar from "../../components/ Navbar"
 import HeroSection from '../../components/HeroSection';
 import FeaturesSection from '../../components/FeaturesSection';
 import HowItWorks from '../../components/HowItWorks';
@@ -8,7 +8,7 @@ import CTASection from '../../components/CTASection';
 export default function Landing() {
     return (
         <div className="bg-white">
-            <NavBar />
+            < Navbar />
             <HeroSection />
             <FeaturesSection />
             <HowItWorks />
