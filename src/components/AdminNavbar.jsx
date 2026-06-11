@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store';
 import { Zap, LogOut } from 'lucide-react';
-export default function Admin Navbar() {
+export default function AdminNavbar() {
     const { user, logout } = useAuthStore();
     const handleLogout = () => {
         logout();

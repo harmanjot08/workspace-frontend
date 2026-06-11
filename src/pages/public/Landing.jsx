@@ -8,7 +8,7 @@ import CTASection from '../../components/CTASection';
 export default function Landing() {
     return (
         <div className="bg-white">
-            < Navbar />
+            <Navbar />
             <HeroSection />
             <FeaturesSection />
             <HowItWorks />
