@@ -18,7 +18,7 @@ export default function VerifyEmail() {
         setMessage('');
 
         try {
-            const res = await fetch('http://localhost:5000/api/auth/verify-email', {
+            const res = await fetch('https://workspace-backend-pyb2.onrender.com/api/auth/verify-email', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ token }),

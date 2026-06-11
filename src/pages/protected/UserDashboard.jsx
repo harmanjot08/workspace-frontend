@@ -55,7 +55,7 @@ export default function UserDashboard() {
     const handleLogout = async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            await fetch('http://localhost:5000/api/auth/logout', {
+            await fetch('https://workspace-backend-pyb2.onrender.com/api/auth/logout', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

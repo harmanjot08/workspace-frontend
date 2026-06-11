@@ -19,7 +19,7 @@ export default function ManagerDashboard() {
 
     const fetchStats = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/users', {
+            const response = await fetch('https://workspace-backend-pyb2.onrender.com/api/users', {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
             const data = await response.json();

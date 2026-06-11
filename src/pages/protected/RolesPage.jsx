@@ -33,7 +33,7 @@ export default function RolesPage() {
 
     const fetchUsers = async () => {
         try {
-            const res = await fetch('http://localhost:5000/api/users', {
+            const res = await fetch('https://workspace-backend-pyb2.onrender.com/api/users', {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
             const data = await res.json();

@@ -56,7 +56,7 @@ export default function UserProfilePage() {
         setLoading(true);
         try {
             // Password change API call (backend endpoint needed)
-            const response = await fetch('http://localhost:5000/api/auth/change-password', {
+            const response = await fetch('https://workspace-backend-pyb2.onrender.com/api/auth/change-password', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

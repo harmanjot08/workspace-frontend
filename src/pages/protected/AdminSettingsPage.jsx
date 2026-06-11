@@ -39,7 +39,7 @@ export default function AdminSettingsPage() {
 
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:5000/api/auth/change-password', {
+            const response = await fetch('https://workspace-backend-pyb2.onrender.com/api/auth/change-password', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -82,8 +82,8 @@ export default function AdminSettingsPage() {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`px-4 py-3 border-b-2 font-medium transition flex items-center gap-2 ${activeTab === tab.id
-                                        ? 'border-blue-600 text-blue-600'
-                                        : 'border-transparent text-slate-600 hover:text-slate-900'
+                                    ? 'border-blue-600 text-blue-600'
+                                    : 'border-transparent text-slate-600 hover:text-slate-900'
                                     }`}>
                                 <Icon className="w-4 h-4" />
                                 {tab.label}

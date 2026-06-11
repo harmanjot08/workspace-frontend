@@ -9,7 +9,7 @@ const useAuthStore = create((set) => ({
     login: async (email, password, role = 'user') => {
         set({ loading: true, error: null });
         try {
-            const res = await fetch('http://localhost:5000/api/auth/login', {
+            const res = await fetch('https://workspace-backend-pyb2.onrender.com/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
@@ -39,7 +39,7 @@ const useAuthStore = create((set) => ({
     logout: async () => {
         try {
             const token = localStorage.getItem('accessToken');
-            await fetch('http://localhost:5000/api/auth/logout', {
+            await fetch('https://workspace-backend-pyb2.onrender.com/api/auth/logout', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -63,7 +63,7 @@ const useAuthStore = create((set) => ({
     register: async (companyName, email, password, confirmPassword, name) => {
         set({ loading: true, error: null });
         try {
-            const res = await fetch('http://localhost:5000/api/auth/register', {
+            const res = await fetch('https://workspace-backend-pyb2.onrender.com/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -94,7 +94,7 @@ const useAuthStore = create((set) => ({
                 set({ isAuthenticated: false, user: null });
                 return false;
             }
-            const res = await fetch('http://localhost:5000/api/auth/refresh-token', {
+            const res = await fetch('https://workspace-backend-pyb2.onrender.com/api/auth/refresh-token', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ refreshToken: refreshTokenValue }),
