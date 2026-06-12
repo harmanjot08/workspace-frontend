@@ -65,10 +65,6 @@ export default function ContactPage() {
                             <span style={{ fontSize: '13px', color: '#6b7280' }}>admin@workspace.com</span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <Phone size={18} style={{ color: '#6b7280' }} />
-                            <span style={{ fontSize: '13px', color: '#6b7280' }}>+91 98765 43210</span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <MapPin size={18} style={{ color: '#6b7280' }} />
                             <span style={{ fontSize: '13px', color: '#6b7280' }}>India</span>
                         </div>
