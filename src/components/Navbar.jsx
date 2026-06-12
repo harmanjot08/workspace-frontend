@@ -24,6 +24,9 @@ export default function Navbar() {
                     <a href="#pricing" className="text-slate-600 text-sm font-medium hover:text-slate-900">
                         Pricing
                     </a>
+                    <a href="/contact" className="text-slate-600 text-sm font-medium hover:text-slate-900">
+                        Contact
+                    </a>
                 </div>
 
                 <div className="flex gap-3">
