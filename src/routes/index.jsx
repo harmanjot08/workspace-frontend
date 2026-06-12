@@ -80,7 +80,11 @@ export default function AppRoutes() {
 
                 <Route
                     path="/contact"
-                    element={<Contact />}
+                    element={
+                        <PublicRoute>
+                            <Contact />
+                        </PublicRoute>
+                    }
                 />
 
                 {/* ADMIN ROUTES */}
