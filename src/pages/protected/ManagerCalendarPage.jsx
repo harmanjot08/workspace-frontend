@@ -227,14 +227,16 @@ export default function ManagerCalendarPage() {
                             />
                             <input
                                 type="datetime-local"
-                                value={form.startTime ? form.startTime.slice(0, 16) : ''}
+                                value={form.startTime}
                                 onChange={e => setForm({ ...form, startTime: e.target.value })}
+                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500"
                             />
 
                             <input
                                 type="datetime-local"
-                                value={form.endTime ? form.endTime.slice(0, 16) : ''}
+                                value={form.endTime}
                                 onChange={e => setForm({ ...form, endTime: e.target.value })}
+                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500"
                             />
                             <input
                                 type="text"
