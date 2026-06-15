@@ -32,6 +32,13 @@ export const taskAPI = {
         return res.json();
     },
 
+    getUserTasks: async (token) => {
+        const res = await fetch(`${API_BASE}/tasks/my-tasks`, {
+            headers: { 'Authorization': `Bearer ${token}` },
+        });
+        return res.json();
+    },
+
     deleteTask: async (token, taskId) => {
         const res = await fetch(`${API_BASE}/tasks/${taskId}`, {
             method: 'DELETE',

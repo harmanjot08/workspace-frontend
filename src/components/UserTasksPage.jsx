@@ -19,8 +19,8 @@ export default function UserTasksPage({ tasks, onUpdateTask }) {
                         key={status}
                         onClick={() => setFilterStatus(status)}
                         className={`px-4 py-2 rounded-lg font-medium transition ${filterStatus === status
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
                             }`}>
                         {status.charAt(0).toUpperCase() + status.slice(1)}
                     </button>
@@ -64,8 +64,10 @@ export default function UserTasksPage({ tasks, onUpdateTask }) {
                                             {task.priority}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 text-sm text-slate-600">{task.dueDate}</td>
-                                    <td className="px-6 py-4 text-sm text-slate-600">{task.assignedBy}</td>
+                                    <td className="px-6 py-4 text-sm text-slate-600">
+                                        {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '—'}
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-slate-600">{task.creator?.name || '—'}</td>
                                 </tr>
                             ))}
                         </tbody>
