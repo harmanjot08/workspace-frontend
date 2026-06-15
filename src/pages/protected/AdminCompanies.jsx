@@ -106,7 +106,7 @@ export default function AdminCompanies() {
     if (loading) {
         return <AdminLayout><div className="p-8">Loading...</div></AdminLayout>;
     }
-    console.log('isAddingCompany state:', isAddingCompany);
+
     return (
         <AdminLayout>
             <div>
@@ -116,11 +116,7 @@ export default function AdminCompanies() {
                         <p className="text-slate-600">Manage all companies on the platform</p>
                     </div>
                     <button
-                        onClick={() => {
-                            console.log('Before:', isAddingCompany);
-                            setIsAddingCompany(true);
-                            console.log('After: true');
-                        }}
+                        onClick={() => setIsAddingCompany(true)}
                         className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
                         <Plus className="w-5 h-5" />
                         Add Company
@@ -166,59 +162,6 @@ export default function AdminCompanies() {
                                                 className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
                                                 <Pencil className="w-4 h-4" />
                                             </button>
-                                            {/* Add Company Modal */}
-                                            {isAddingCompany && (
-                                                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                                                    <div className="bg-white rounded-xl p-6 w-full max-w-md">
-                                                        <h3 className="text-lg font-bold text-slate-900 mb-4">Add New Company</h3>
-                                                        {addError && (
-                                                            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">
-                                                                {addError}
-                                                            </div>
-                                                        )}
-                                                        <div className="space-y-3">
-                                                            <input
-                                                                type="text"
-                                                                placeholder="Company name"
-                                                                value={newCompanyForm.name}
-                                                                onChange={e => setNewCompanyForm({ ...newCompanyForm, name: e.target.value })}
-                                                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500"
-                                                            />
-                                                            <input
-                                                                type="email"
-                                                                placeholder="Email"
-                                                                value={newCompanyForm.email}
-                                                                onChange={e => setNewCompanyForm({ ...newCompanyForm, email: e.target.value })}
-                                                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500"
-                                                            />
-                                                            <select
-                                                                value={newCompanyForm.plan}
-                                                                onChange={e => setNewCompanyForm({ ...newCompanyForm, plan: e.target.value })}
-                                                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500">
-                                                                <option value="FREE">FREE</option>
-                                                                <option value="PRO">PRO</option>
-                                                                <option value="PREMIUM">PREMIUM</option>
-                                                            </select>
-                                                        </div>
-                                                        <div className="flex gap-3 justify-end mt-4">
-                                                            <button
-                                                                onClick={() => {
-                                                                    setIsAddingCompany(false);
-                                                                    setNewCompanyForm({ name: '', email: '', plan: 'FREE' });
-                                                                    setAddError('');
-                                                                }}
-                                                                className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg">
-                                                                Cancel
-                                                            </button>
-                                                            <button
-                                                                onClick={handleAddCompany}
-                                                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                                                                Add Company
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )}
                                             <button
                                                 className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg">
                                                 <Eye className="w-4 h-4" />
@@ -235,6 +178,60 @@ export default function AdminCompanies() {
                     Total companies: {companies.length}
                 </div>
             </div>
+
+            {/* Add Company Modal */}
+            {isAddingCompany && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl p-6 w-full max-w-md">
+                        <h3 className="text-lg font-bold text-slate-900 mb-4">Add New Company</h3>
+                        {addError && (
+                            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">
+                                {addError}
+                            </div>
+                        )}
+                        <div className="space-y-3">
+                            <input
+                                type="text"
+                                placeholder="Company name"
+                                value={newCompanyForm.name}
+                                onChange={e => setNewCompanyForm({ ...newCompanyForm, name: e.target.value })}
+                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500"
+                            />
+                            <input
+                                type="email"
+                                placeholder="Email"
+                                value={newCompanyForm.email}
+                                onChange={e => setNewCompanyForm({ ...newCompanyForm, email: e.target.value })}
+                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500"
+                            />
+                            <select
+                                value={newCompanyForm.plan}
+                                onChange={e => setNewCompanyForm({ ...newCompanyForm, plan: e.target.value })}
+                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500">
+                                <option value="FREE">FREE</option>
+                                <option value="PRO">PRO</option>
+                                <option value="PREMIUM">PREMIUM</option>
+                            </select>
+                        </div>
+                        <div className="flex gap-3 justify-end mt-4">
+                            <button
+                                onClick={() => {
+                                    setIsAddingCompany(false);
+                                    setNewCompanyForm({ name: '', email: '', plan: 'FREE' });
+                                    setAddError('');
+                                }}
+                                className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg">
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleAddCompany}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                Add Company
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Edit Modal */}
             {showModal && (
