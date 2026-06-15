@@ -106,7 +106,7 @@ export default function AdminCompanies() {
     if (loading) {
         return <AdminLayout><div className="p-8">Loading...</div></AdminLayout>;
     }
-
+    console.log('isAddingCompany state:', isAddingCompany);
     return (
         <AdminLayout>
             <div>
@@ -116,7 +116,11 @@ export default function AdminCompanies() {
                         <p className="text-slate-600">Manage all companies on the platform</p>
                     </div>
                     <button
-                        onClick={() => setIsAddingCompany(true)}
+                        onClick={() => {
+                            console.log('Before:', isAddingCompany);
+                            setIsAddingCompany(true);
+                            console.log('After: true');
+                        }}
                         className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
                         <Plus className="w-5 h-5" />
                         Add Company
