@@ -112,49 +112,6 @@ export default function ManagerTasksPage() {
         return 'bg-yellow-100 text-yellow-700';
     };
 
-    const TaskModal = ({ onSubmit, onClose, title }) => (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl p-6 w-full max-w-md">
-                <h3 className="text-lg font-bold text-slate-900 mb-4">{title}</h3>
-                <div className="space-y-3">
-                    <input type="text" placeholder="Task title*" value={form.title}
-                        onChange={e => setForm({ ...form, title: e.target.value })}
-                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500" />
-                    <textarea placeholder="Description (optional)" value={form.description}
-                        onChange={e => setForm({ ...form, description: e.target.value })}
-                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 h-20 resize-none" />
-                    <select value={form.priority} onChange={e => setForm({ ...form, priority: e.target.value })}
-                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500">
-                        <option>Low</option>
-                        <option>Medium</option>
-                        <option>High</option>
-                        <option>Critical</option>
-                    </select>
-                    <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}
-                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500">
-                        <option>Pending</option>
-                        <option>In Progress</option>
-                        <option>Completed</option>
-                    </select>
-                    <input type="date" value={form.dueDate}
-                        onChange={e => setForm({ ...form, dueDate: e.target.value })}
-                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500" />
-                    <select value={form.assignedTo} onChange={e => setForm({ ...form, assignedTo: e.target.value })}
-                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500">
-                        <option value="">Assign to (optional)</option>
-                        {users.map(u => (
-                            <option key={u.id} value={u.id}>{u.name}</option>
-                        ))}
-                    </select>
-                </div>
-                <div className="flex gap-3 justify-end mt-4">
-                    <button onClick={onClose} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg">Cancel</button>
-                    <button onClick={onSubmit} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save</button>
-                </div>
-            </div>
-        </div>
-    );
-
     if (loading) return <ManagerLayout><div className="p-8">Loading...</div></ManagerLayout>;
 
     return (
@@ -247,8 +204,68 @@ export default function ManagerTasksPage() {
                 </div>
             </div>
 
-            {showCreateModal && <TaskModal title="Create New Task" onSubmit={handleCreateTask} onClose={() => setShowCreateModal(false)} />}
-            {showEditModal && <TaskModal title="Edit Task" onSubmit={handleEditTask} onClose={() => setShowEditModal(false)} />}
+            {showCreateModal && <TaskModal title="Create New Task" onSubmit={handleCreateTask} onClose={() => setShowCreateModal(false)} form={form} setForm={setForm} users={users} />}
+            {showEditModal && <TaskModal title="Edit Task" onSubmit={handleEditTask} onClose={() => setShowEditModal(false)} form={form} setForm={setForm} users={users} />}
         </ManagerLayout>
     );
+    const TaskModal = ({ onSubmit, onClose, title, form, setForm, users }) => (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-6 w-full max-w-md">
+                <h3 className="text-lg font-bold text-slate-900 mb-4">{title}</h3>
+                <div className="space-y-3">
+                    <input
+                        type="text"
+                        placeholder="Task title*"
+                        value={form.title}
+                        onChange={e => setForm({ ...form, title: e.target.value })}
+                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500"
+                    />
+                    <textarea
+                        placeholder="Description (optional)"
+                        value={form.description}
+                        onChange={e => setForm({ ...form, description: e.target.value })}
+                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 h-20 resize-none"
+                    />
+                    <select
+                        value={form.priority}
+                        onChange={e => setForm({ ...form, priority: e.target.value })}
+                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500">
+                        <option>Low</option>
+                        <option>Medium</option>
+                        <option>High</option>
+                        <option>Critical</option>
+                    </select>
+                    <select
+                        value={form.status}
+                        onChange={e => setForm({ ...form, status: e.target.value })}
+                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500">
+                        <option>Pending</option>
+                        <option>In Progress</option>
+                        <option>Completed</option>
+                    </select>
+                    <input
+                        type="date"
+                        value={form.dueDate}
+                        onChange={e => setForm({ ...form, dueDate: e.target.value })}
+                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500"
+                    />
+                    <select
+                        value={form.assignedTo}
+                        onChange={e => setForm({ ...form, assignedTo: e.target.value })}
+                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500">
+                        <option value="">Assign to (optional)</option>
+                        {users.map(u => (
+                            <option key={u.id} value={u.id}>{u.name}</option>
+                        ))}
+                    </select>
+                </div>
+                <div className="flex gap-3 justify-end mt-4">
+                    <button onClick={onClose} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg">Cancel</button>
+                    <button onClick={onSubmit} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save</button>
+                </div>
+            </div>
+        </div>
+    );
+
+    export default ManagerTasksPage;
 }
