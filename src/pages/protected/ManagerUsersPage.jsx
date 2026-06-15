@@ -88,6 +88,23 @@ export default function ManagerUsersPage() {
             setAddLoading(false);
         }
     };
+    const handleToggleUserStatus = async (userId, currentStatus) => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            const response = await userAPI.updateUser(token, userId, {
+                isActive: !currentStatus
+            });
+
+            if (response.user) {
+                setUsers(prev =>
+                    prev.map(u => u.id === userId ? response.user : u)
+                );
+            }
+        } catch (err) {
+            setError('Failed to update user status');
+            console.error(err);
+        }
+    };
     if (loading) return <div className="p-8">Loading users...</div>;
     return (
         <ManagerLayout>
@@ -123,6 +140,7 @@ export default function ManagerUsersPage() {
                                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Role</th>
                                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Department</th>
                                 <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Status</th>
+                                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-200">
@@ -143,6 +161,16 @@ export default function ManagerUsersPage() {
                                             }`}>
                                             {user.isActive ? 'Active' : 'Inactive'}
                                         </span>
+                                    </td>
+                                    <td className="px-6 py-4 text-sm">
+                                        <button
+                                            onClick={() => handleToggleUserStatus(user.id, user.isActive)}
+                                            className={`px-3 py-1 rounded-lg text-sm font-medium transition ${user.isActive
+                                                    ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                                                    : 'bg-green-100 text-green-700 hover:bg-green-200'
+                                                }`}>
+                                            {user.isActive ? 'Deactivate' : 'Activate'}
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
