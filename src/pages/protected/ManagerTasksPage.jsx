@@ -267,5 +267,6 @@ export default function ManagerTasksPage() {
         </div>
     );
 
-    export default ManagerTasksPage;
-}
+};
+
+export default ManagerTasksPage;
