@@ -40,6 +40,14 @@ export const adminAPI = {
         return res.json();
     },
 
+    deleteCompany: async (token, companyId) => {
+        const res = await fetch(`${API_BASE}/companies/${companyId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` },
+        });
+        return res.json();
+    },
+
     // ===== PRICING PLANS =====
     getAllPricingPlans: async (token) => {
         const res = await fetch(`${API_BASE}/pricing-plans`, {

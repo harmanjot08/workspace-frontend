@@ -52,6 +52,18 @@ export default function AdminCompanies() {
             setShowModal(false);
         }
     };
+    const handleDeleteCompany = async (companyId) => {
+        if (window.confirm('Are you sure you want to delete this company?')) {
+            try {
+                const response = await adminAPI.deleteCompany(token, companyId);
+                if (response.message) {
+                    setCompanies(prev => prev.filter(c => c.id !== companyId));
+                }
+            } catch (err) {
+                console.error('Delete error:', err);
+            }
+        }
+    };
     const openEditModal = (company) => {
         setEditingCompany(company);
         setForm({
@@ -148,8 +160,9 @@ export default function AdminCompanies() {
                                                 <Pencil className="w-4 h-4" />
                                             </button>
                                             <button
-                                                className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg">
-                                                <Eye className="w-4 h-4" />
+                                                onClick={() => handleDeleteCompany(company.id)}
+                                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
+                                                <Trash2 className="w-4 h-4" />
                                             </button>
                                         </div>
                                     </td>
