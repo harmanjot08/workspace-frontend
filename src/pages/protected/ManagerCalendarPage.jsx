@@ -113,12 +113,15 @@ export default function ManagerCalendarPage() {
     };
 
     const formatDate = (date) => {
-        return new Date(date).toLocaleDateString('en-US', {
+        const options = {
             month: 'short',
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
-        });
+            hour12: true,
+            timeZone: 'Asia/Kolkata'
+        };
+        return new Date(date).toLocaleDateString('en-US', options);
     };
 
     if (loading) return <ManagerLayout><div className="p-8">Loading...</div></ManagerLayout>;
