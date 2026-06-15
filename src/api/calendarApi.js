@@ -31,7 +31,7 @@ export const calendarAPI = {
         const startTime = new Date(data.startTime).toISOString();
         const endTime = new Date(data.endTime).toISOString();
 
-        const res = await fetch(`${API_BASE}/events`, {
+        const res = await fetch(`${API_BASE}/calendar`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
