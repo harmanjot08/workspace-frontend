@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import AdminLayout from '../../components/AdminLayout';
 import { adminAPI } from '../../api/adminApi.js';
 import { Trash2, Pencil, Eye, Plus } from 'lucide-react';
-
 export default function AdminCompanies() {
     const [companies, setCompanies] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -20,13 +19,10 @@ export default function AdminCompanies() {
         plan: 'FREE',
     });
     const [addError, setAddError] = useState('');
-
     const token = localStorage.getItem('accessToken');
-
     useEffect(() => {
         fetchCompanies();
     }, []);
-
     const fetchCompanies = async () => {
         try {
             setLoading(true);
@@ -40,7 +36,6 @@ export default function AdminCompanies() {
             setLoading(false);
         }
     };
-
     const handleUpdateCompany = async () => {
         if (!editingCompany || !form.name) return;
 
@@ -49,7 +44,6 @@ export default function AdminCompanies() {
             email: form.email,
             plan: form.plan,
         });
-
         if (response.company) {
             setCompanies(prev =>
                 prev.map(c => c.id === editingCompany.id ? response.company : c)
@@ -58,7 +52,6 @@ export default function AdminCompanies() {
             setShowModal(false);
         }
     };
-
     const openEditModal = (company) => {
         setEditingCompany(company);
         setForm({
@@ -68,22 +61,18 @@ export default function AdminCompanies() {
         });
         setShowModal(true);
     };
-
     const resetForm = () => {
         setForm({ name: '', email: '', plan: 'FREE' });
         setEditingCompany(null);
     };
-
     const handleAddCompany = async () => {
         if (!newCompanyForm.name || !newCompanyForm.email) {
             setAddError('Name and email are required');
             return;
         }
-
         try {
             setAddError('');
             const response = await adminAPI.createCompany(token, newCompanyForm);
-
             if (response.company) {
                 setCompanies(prev => [response.company, ...prev]);
                 setNewCompanyForm({ name: '', email: '', plan: 'FREE' });
@@ -96,17 +85,14 @@ export default function AdminCompanies() {
             console.error(err);
         }
     };
-
     const planColor = (plan) => {
         if (plan === 'PREMIUM') return 'bg-purple-100 text-purple-700';
         if (plan === 'PRO') return 'bg-blue-100 text-blue-700';
         return 'bg-slate-100 text-slate-700';
     };
-
     if (loading) {
         return <AdminLayout><div className="p-8">Loading...</div></AdminLayout>;
     }
-
     return (
         <AdminLayout>
             <div>
@@ -122,7 +108,6 @@ export default function AdminCompanies() {
                         Add Company
                     </button>
                 </div>
-
                 <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
                     <table className="w-full">
                         <thead className="bg-slate-50 border-b border-slate-200">
@@ -173,12 +158,10 @@ export default function AdminCompanies() {
                         </tbody>
                     </table>
                 </div>
-
                 <div className="mt-4 text-sm text-slate-600">
                     Total companies: {companies.length}
                 </div>
             </div>
-
             {/* Add Company Modal */}
             {isAddingCompany && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -195,15 +178,13 @@ export default function AdminCompanies() {
                                 placeholder="Company name"
                                 value={newCompanyForm.name}
                                 onChange={e => setNewCompanyForm({ ...newCompanyForm, name: e.target.value })}
-                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500"
-                            />
+                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500" />
                             <input
                                 type="email"
                                 placeholder="Email"
                                 value={newCompanyForm.email}
                                 onChange={e => setNewCompanyForm({ ...newCompanyForm, email: e.target.value })}
-                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500"
-                            />
+                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500" />
                             <select
                                 value={newCompanyForm.plan}
                                 onChange={e => setNewCompanyForm({ ...newCompanyForm, plan: e.target.value })}
@@ -232,7 +213,6 @@ export default function AdminCompanies() {
                     </div>
                 </div>
             )}
-
             {/* Edit Modal */}
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -244,15 +224,13 @@ export default function AdminCompanies() {
                                 placeholder="Company name"
                                 value={form.name}
                                 onChange={e => setForm({ ...form, name: e.target.value })}
-                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500"
-                            />
+                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500" />
                             <input
                                 type="email"
                                 placeholder="Email"
                                 value={form.email}
                                 onChange={e => setForm({ ...form, email: e.target.value })}
-                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500"
-                            />
+                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500" />
                             <select
                                 value={form.plan}
                                 onChange={e => setForm({ ...form, plan: e.target.value })}
