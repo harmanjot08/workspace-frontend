@@ -112,16 +112,17 @@ export default function ManagerCalendarPage() {
         setShowModal(true);
     };
 
-    const formatDate = (date) => {
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
         const options = {
             month: 'short',
             day: 'numeric',
+            year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined,
             hour: '2-digit',
             minute: '2-digit',
             hour12: true,
-            timeZone: 'Asia/Kolkata'
         };
-        return new Date(date).toLocaleDateString('en-US', options);
+        return date.toLocaleDateString('en-IN', options);
     };
 
     if (loading) return <ManagerLayout><div className="p-8">Loading...</div></ManagerLayout>;

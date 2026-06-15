@@ -26,14 +26,22 @@ export const calendarAPI = {
     },
 
     // Create event
-    createEvent: async (token, eventData) => {
-        const res = await fetch(`${API_BASE}/calendar`, {
+    createEvent: async (token, data) => {
+        // Convert local datetime to ISO string with timezone
+        const startTime = new Date(data.startTime).toISOString();
+        const endTime = new Date(data.endTime).toISOString();
+
+        const res = await fetch(`${API_BASE}/events`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(eventData),
+            body: JSON.stringify({
+                ...data,
+                startTime,
+                endTime,
+            }),
         });
         return res.json();
     },
