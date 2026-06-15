@@ -36,6 +36,22 @@ export default function UserDashboard() {
         }
     }, []);
 
+    useEffect(() => {
+        const fetchUserTasks = async () => {
+            try {
+                const token = localStorage.getItem('accessToken');
+                const res = await fetch('https://workspace-backend-pyb2.onrender.com/api/tasks/my-tasks', {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                });
+                const data = await res.json();
+                if (data.tasks) setTasks(data.tasks);
+            } catch (err) {
+                console.error('fetchTasks error:', err);
+            }
+        };
+        if (user) fetchUserTasks();
+    }, [user]);
+
     const menuItems = [
         { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
         { id: 'tasks', icon: CheckSquare, label: 'Tasks' },
@@ -76,7 +92,7 @@ export default function UserDashboard() {
             case 'dashboard':
                 return <DashboardOverview tasks={tasks} meetings={[]} userName={user?.name} />;
             case 'tasks':
-                return <UserTasksPage tasks={[]} onUpdateTask={handleUpdateTask} />;
+                return <UserTasksPage tasks={tasks} onUpdateTask={handleUpdateTask} />;
             case 'calendar':
                 return <UserCalendarPage meetings={[]} tasks={[]} />;
             case 'chat':
