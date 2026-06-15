@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '../../components/AdminLayout';
 import { adminAPI } from '../../api/adminApi.js';
-import { Trash2, Pencil, Eye } from 'lucide-react';
+import { Trash2, Pencil, Eye, Plus } from 'lucide-react';
 
 export default function AdminCompanies() {
     const [companies, setCompanies] = useState([]);
@@ -13,6 +13,13 @@ export default function AdminCompanies() {
         email: '',
         plan: 'FREE',
     });
+    const [isAddingCompany, setIsAddingCompany] = useState(false);
+    const [newCompanyForm, setNewCompanyForm] = useState({
+        name: '',
+        email: '',
+        plan: 'FREE',
+    });
+    const [addError, setAddError] = useState('');
 
     const token = localStorage.getItem('accessToken');
 
@@ -67,6 +74,29 @@ export default function AdminCompanies() {
         setEditingCompany(null);
     };
 
+    const handleAddCompany = async () => {
+        if (!newCompanyForm.name || !newCompanyForm.email) {
+            setAddError('Name and email are required');
+            return;
+        }
+
+        try {
+            setAddError('');
+            const response = await adminAPI.createCompany(token, newCompanyForm);
+
+            if (response.company) {
+                setCompanies(prev => [response.company, ...prev]);
+                setNewCompanyForm({ name: '', email: '', plan: 'FREE' });
+                setIsAddingCompany(false);
+            } else {
+                setAddError(response.message || 'Failed to create company');
+            }
+        } catch (err) {
+            setAddError('Error creating company');
+            console.error(err);
+        }
+    };
+
     const planColor = (plan) => {
         if (plan === 'PREMIUM') return 'bg-purple-100 text-purple-700';
         if (plan === 'PRO') return 'bg-blue-100 text-blue-700';
@@ -80,9 +110,17 @@ export default function AdminCompanies() {
     return (
         <AdminLayout>
             <div>
-                <div className="mb-8">
-                    <h1 className="text-4xl font-bold text-slate-900 mb-2">Companies</h1>
-                    <p className="text-slate-600">Manage all companies on the platform</p>
+                <div className="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 className="text-4xl font-bold text-slate-900 mb-2">Companies</h1>
+                        <p className="text-slate-600">Manage all companies on the platform</p>
+                    </div>
+                    <button
+                        onClick={() => setIsAddingCompany(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+                        <Plus className="w-5 h-5" />
+                        Add Company
+                    </button>
                 </div>
 
                 <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
@@ -124,6 +162,59 @@ export default function AdminCompanies() {
                                                 className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
                                                 <Pencil className="w-4 h-4" />
                                             </button>
+                                            {/* Add Company Modal */}
+                                            {isAddingCompany && (
+                                                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                                    <div className="bg-white rounded-xl p-6 w-full max-w-md">
+                                                        <h3 className="text-lg font-bold text-slate-900 mb-4">Add New Company</h3>
+                                                        {addError && (
+                                                            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">
+                                                                {addError}
+                                                            </div>
+                                                        )}
+                                                        <div className="space-y-3">
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Company name"
+                                                                value={newCompanyForm.name}
+                                                                onChange={e => setNewCompanyForm({ ...newCompanyForm, name: e.target.value })}
+                                                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500"
+                                                            />
+                                                            <input
+                                                                type="email"
+                                                                placeholder="Email"
+                                                                value={newCompanyForm.email}
+                                                                onChange={e => setNewCompanyForm({ ...newCompanyForm, email: e.target.value })}
+                                                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500"
+                                                            />
+                                                            <select
+                                                                value={newCompanyForm.plan}
+                                                                onChange={e => setNewCompanyForm({ ...newCompanyForm, plan: e.target.value })}
+                                                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500">
+                                                                <option value="FREE">FREE</option>
+                                                                <option value="PRO">PRO</option>
+                                                                <option value="PREMIUM">PREMIUM</option>
+                                                            </select>
+                                                        </div>
+                                                        <div className="flex gap-3 justify-end mt-4">
+                                                            <button
+                                                                onClick={() => {
+                                                                    setIsAddingCompany(false);
+                                                                    setNewCompanyForm({ name: '', email: '', plan: 'FREE' });
+                                                                    setAddError('');
+                                                                }}
+                                                                className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg">
+                                                                Cancel
+                                                            </button>
+                                                            <button
+                                                                onClick={handleAddCompany}
+                                                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                                                Add Company
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
                                             <button
                                                 className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg">
                                                 <Eye className="w-4 h-4" />

@@ -9,6 +9,18 @@ export const adminAPI = {
         return res.json();
     },
 
+    createCompany: async (token, data) => {
+        const res = await fetch(`${API_BASE}/companies`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+        return res.json();
+    },
+
     getCompany: async (token, companyId) => {
         const res = await fetch(`${API_BASE}/companies/${companyId}`, {
             headers: { 'Authorization': `Bearer ${token}` },

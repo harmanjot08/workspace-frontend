@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 export default function CTASection() {
     return (
-        <section className="py-24 bg-gradient-to-b from-white to-slate-50">
+        <section className="py-24 bg-slate-50">
             <div className="max-w-2xl mx-auto px-6 text-center">
                 <h2 className="text-4xl font-bold text-slate-900 mb-6">
                     Ready to transform how your team works?

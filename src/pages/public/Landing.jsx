@@ -4,6 +4,7 @@ import FeaturesSection from '../../components/FeaturesSection';
 import HowItWorks from '../../components/HowItWorks';
 import PricingSection from '../../components/PricingSection';
 import CTASection from '../../components/CTASection';
+import Footer from '../../components/Footer';
 
 export default function Landing() {
     return (
@@ -14,6 +15,7 @@ export default function Landing() {
             <HowItWorks />
             <PricingSection />
             <CTASection />
+            <Footer />
         </div>
     );
 }
