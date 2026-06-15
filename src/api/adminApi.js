@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_URL || 'https://workspace-backend-pyb2.onrender.com/api/admin';
+const API_BASE = import.meta.env.VITE_API_URL + '/admin' || 'https://workspace-backend-pyb2.onrender.com/api/admin';
 
 export const adminAPI = {
     // ===== COMPANIES =====
