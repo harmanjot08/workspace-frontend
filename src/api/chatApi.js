@@ -4,14 +4,18 @@ const API_BASE = import.meta.env.VITE_API_URL || 'https://workspace-backend-pyb2
 
 export const chatAPI = {
     // Create chat
-    createChat: async (token, { memberIds, isGroup }) => {
+    createChat: async (token, { memberIds, isGroup, chatName }) => {
         const res = await fetch(`${API_BASE}/chats`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ participantIds: memberIds, isGroup, chatName: memberIds.chatName || '' }),
+            body: JSON.stringify({
+                participantIds: memberIds,
+                isGroup,
+                chatName
+            }),
         });
         return res.json();
     },
