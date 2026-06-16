@@ -13,6 +13,7 @@ export default function UserChatPage() {
 
     const token = localStorage.getItem('accessToken');
     const currentUser = JSON.parse(localStorage.getItem('user'));
+    console.log('Current user:', currentUser);
 
     useEffect(() => {
         const socket = initSocket(token);
@@ -124,10 +125,10 @@ export default function UserChatPage() {
         // DB se mila real message socket se bhejo
         if (res.data) {
             sendMessage({
-                id: res.data.id,  // real DB id
+                id: res.data.id,
                 content: res.data.content,
                 chatId: selectedChat.id,
-                userId: currentUser.id,
+                userId: currentUser.id,  // Ye sahi hai?
                 userName: currentUser.name,
                 createdAt: res.data.createdAt,
             });
