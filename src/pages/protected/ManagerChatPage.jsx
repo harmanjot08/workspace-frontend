@@ -106,12 +106,15 @@ export default function ManagerChatPage() {
 
     const getChatName = (chat) => {
         if (!chat) return '';
-        if (chat.isGroup) return chat.name || 'Group Chat';
+        if (chat.isGroup) {
+            return chat.name && chat.name.trim() ? chat.name : 'Group Chat';
+        }
         const otherMember = chat.chatMembers?.find(m => m.user.id !== currentUser.id);
         return otherMember?.user.name || 'Unknown';
     };
 
     const handleSelectChat = async (chat) => {
+        console.log('Selected chat:', chat);
         setSelectedChat(chat);
         setUnreadCounts(prev => ({ ...prev, [chat.id]: 0 }));
         localStorage.setItem('selectedChat', JSON.stringify(chat));
