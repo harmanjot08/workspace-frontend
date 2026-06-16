@@ -155,6 +155,7 @@ export default function ManagerChatPage() {
                 setShowGroupModal(false);
                 setGroupName('');
                 setSelectedMembers([]);
+                setChats(prev => [...prev, response.chat]);
                 await fetchChats();
                 handleSelectChat(response.chat);
             }
