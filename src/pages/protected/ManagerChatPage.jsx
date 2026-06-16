@@ -16,6 +16,9 @@ export default function ManagerChatPage() {
     const [showNewChat, setShowNewChat] = useState(false);
     const [typingUsers, setTypingUsers] = useState([]);
     const [unreadCounts, setUnreadCounts] = useState({});
+    const [showGroupModal, setShowGroupModal] = useState(false);
+    const [groupName, setGroupName] = useState('');
+    const [selectedMembers, setSelectedMembers] = useState([]);
 
     const token = localStorage.getItem('accessToken');
     const currentUser = JSON.parse(localStorage.getItem('user'));
@@ -137,6 +140,29 @@ export default function ManagerChatPage() {
         }
     };
 
+    const handleCreateGroup = async () => {
+        if (!groupName.trim() || selectedMembers.length === 0) {
+            alert('Group name and members required');
+            return;
+        }
+        try {
+            const response = await chatAPI.createChat(token, {
+                memberIds: selectedMembers,
+                isGroup: true,
+                chatName: groupName,
+            });
+            if (response.chat) {
+                setShowGroupModal(false);
+                setGroupName('');
+                setSelectedMembers([]);
+                await fetchChats();
+                handleSelectChat(response.chat);
+            }
+        } catch (err) {
+            console.error('handleCreateGroup error:', err);
+        }
+    };
+
     const handleSendMessage = async (e) => {
         e.preventDefault();
         if (!messageText.trim() || !selectedChat) return;
@@ -168,11 +194,18 @@ export default function ManagerChatPage() {
             <div className="w-64 bg-white border-r border-slate-200 flex flex-col">
                 <div className="p-4 flex justify-between items-center border-b border-slate-200">
                     <h2 className="text-lg font-bold text-slate-900">Chats</h2>
-                    <button
-                        onClick={() => setShowNewChat(!showNewChat)}
-                        className="text-sm bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600">
-                        + New
-                    </button>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => setShowNewChat(!showNewChat)}
+                            className="text-sm bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600">
+                            + New
+                        </button>
+                        <button
+                            onClick={() => setShowGroupModal(true)}
+                            className="text-sm bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600">
+                            + Group
+                        </button>
+                    </div>
                 </div>
 
                 {/* New chat user list */}
@@ -282,6 +315,60 @@ export default function ManagerChatPage() {
             ) : (
                 <div className="flex-1 flex items-center justify-center text-slate-500">
                     Select a chat to start messaging
+                </div>
+            )}
+
+            {/* Create Group Modal */}
+            {showGroupModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-96">
+                        <h3 className="text-lg font-bold text-slate-900 mb-4">Create Group</h3>
+                        <input
+                            type="text"
+                            placeholder="Group name*"
+                            value={groupName}
+                            onChange={e => setGroupName(e.target.value)}
+                            className="w-full px-4 py-2 border border-slate-300 rounded-lg mb-4 focus:outline-none focus:border-blue-500"
+                        />
+                        <p className="text-sm text-slate-600 mb-2">Select members:</p>
+                        <div className="border border-slate-300 rounded-lg p-3 max-h-48 overflow-y-auto mb-4">
+                            {users
+                                .filter(u => u.id !== currentUser.id)
+                                .map(user => (
+                                    <label key={user.id} className="flex items-center gap-2 mb-2">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedMembers.includes(user.id)}
+                                            onChange={e => {
+                                                if (e.target.checked) {
+                                                    setSelectedMembers([...selectedMembers, user.id]);
+                                                } else {
+                                                    setSelectedMembers(selectedMembers.filter(id => id !== user.id));
+                                                }
+                                            }}
+                                            className="w-4 h-4"
+                                        />
+                                        <span className="text-sm text-slate-700">{user.name}</span>
+                                    </label>
+                                ))}
+                        </div>
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={() => {
+                                    setShowGroupModal(false);
+                                    setGroupName('');
+                                    setSelectedMembers([]);
+                                }}
+                                className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg">
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleCreateGroup}
+                                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                                Create Group
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
