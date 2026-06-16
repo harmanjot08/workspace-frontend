@@ -1,3 +1,5 @@
+import { ChartNoAxesColumnDecreasing } from "lucide-react";
+
 const API_BASE = import.meta.env.VITE_API_URL || 'https://workspace-backend-pyb2.onrender.com/api';
 
 export const chatAPI = {
@@ -9,7 +11,7 @@ export const chatAPI = {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ participantIds: memberIds, isGroup }),
+            body: JSON.stringify({ participantIds: memberIds, isGroup, chatName: memberIds.chatName || '' }),
         });
         return res.json();
     },

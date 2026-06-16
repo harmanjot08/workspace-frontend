@@ -106,7 +106,7 @@ export default function ManagerChatPage() {
 
     const getChatName = (chat) => {
         if (!chat) return '';
-        if (chat.isGroup) return chat.name;
+        if (chat.isGroup) return chat.name || 'Group Chat';
         const otherMember = chat.chatMembers?.find(m => m.user.id !== currentUser.id);
         return otherMember?.user.name || 'Unknown';
     };
