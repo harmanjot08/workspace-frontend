@@ -14,6 +14,7 @@ export default function UserChatPage() {
     const [unreadCounts, setUnreadCounts] = useState({});
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [selectedMessageForReaction, setSelectedMessageForReaction] = useState(null);
+    const [typingUsers, setTypingUsers] = useState([]);
     const [deleteModal, setDeleteModal] = useState(false);
     const [selectedMessage, setSelectedMessage] = useState(null);
 
