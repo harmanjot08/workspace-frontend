@@ -193,9 +193,11 @@ export default function ManagerChatPage() {
         if ((!messageText.trim() && !selectedFile) || !selectedChat) return;
 
         const content = messageText;
+        const fileData = selectedFile;  // Save pehle
         setMessageText('');
+        setSelectedFile(null);  // Clear pehle
 
-        const res = await chatAPI.sendMessage(token, selectedChat.id, content, selectedFile);
+        const res = await chatAPI.sendMessage(token, selectedChat.id, content, fileData);
 
         if (res.data) {
             sendMessage({
@@ -209,7 +211,6 @@ export default function ManagerChatPage() {
                 fileType: res.data.fileType,
                 createdAt: res.data.createdAt,
             });
-            setSelectedFile(null);
         }
     };
 
