@@ -311,23 +311,16 @@ export default function ManagerChatPage() {
                                                 {msg.content}
                                             </p>
                                             {msg.reactions && msg.reactions.length > 0 && (
-                                                <div className="flex gap-2 mt-1 flex-wrap">
-                                                    {Object.entries(
-                                                        msg.reactions.reduce((acc, reaction) => {
-                                                            if (!acc[reaction.emoji]) acc[reaction.emoji] = [];
-                                                            acc[reaction.emoji].push(reaction.userId === currentUser.id ? 'You' :
-                                                                msg.user?.name || 'User');
-                                                            return acc;
-                                                        }, {})
-                                                    ).map(([emoji, users]) => (
+                                                <div className="flex gap-1 mt-1 flex-wrap">
+                                                    {Array.from(new Set(msg.reactions.map(r => r.emoji))).map((emoji) => (
                                                         <button
                                                             key={emoji}
                                                             onClick={() => {
                                                                 setSelectedMessageForReaction(msg);
                                                                 setShowEmojiPicker(true);
                                                             }}
-                                                            className="text-sm hover:scale-125 cursor-pointer bg-slate-100 px-2 py-1 rounded-full">
-                                                            {emoji} ({users.join(', ')})
+                                                            className="text-sm hover:scale-125 cursor-pointer">
+                                                            {emoji}
                                                         </button>
                                                     ))}
                                                 </div>
