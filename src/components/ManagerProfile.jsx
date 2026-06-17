@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { User, Camera } from 'lucide-react';
-import { userApi } from '../../api/userApi.js';
+import { userApi } from '../api/userApi.js';
 export default function ManagerProfile({ data, onSave }) {
     const [formData, setFormData] = useState(data);
     const [errors, setErrors] = useState({});
