@@ -11,6 +11,8 @@ export default function UserChatPage() {
     const [messageText, setMessageText] = useState('');
     const [loading, setLoading] = useState(true);
     const [unreadCounts, setUnreadCounts] = useState({});
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [selectedMessageForReaction, setSelectedMessageForReaction] = useState(null);
 
     const token = localStorage.getItem('accessToken');
     const currentUser = JSON.parse(localStorage.getItem('user'));
@@ -129,15 +131,12 @@ export default function UserChatPage() {
                 id: res.data.id,
                 content: res.data.content,
                 chatId: selectedChat.id,
-                userId: currentUser.id,  // Ye sahi hai?
+                userId: currentUser.id,
                 userName: currentUser.name,
                 createdAt: res.data.createdAt,
             });
         }
     };
-
-    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-    const [selectedMessageForReaction, setSelectedMessageForReaction] = useState(null);
 
     const handleEmojiClick = (emojiObject) => {
         if (selectedMessageForReaction) {
@@ -284,7 +283,16 @@ export default function UserChatPage() {
                         </button>
                         {showEmojiPicker && (
                             <div className="absolute bottom-16 right-0 z-50">
-                                <EmojiPicker onEmojiClick={handleEmojiClick} />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowEmojiPicker(false)}
+                                    className="absolute -top-8 -right-2 text-slate-400 hover:text-slate-600 text-lg font-bold z-50">
+                                    ✕
+                                </button>
+                                <EmojiPicker
+                                    onEmojiClick={handleEmojiClick}
+                                    skinTonesDisabled={true}
+                                />
                             </div>
                         )}
                     </form>
