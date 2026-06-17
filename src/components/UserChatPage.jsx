@@ -298,8 +298,9 @@ export default function UserChatPage() {
                                     .join('')
                                     .toUpperCase();
                             };
+
                             return (
-                                <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} gap-2`}>
+                                <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} gap-2 group`}>
                                     {!isMe && (
                                         <div>
                                             {msg.user?.profilePicture ? (
@@ -321,7 +322,8 @@ export default function UserChatPage() {
                                             {isMe ? 'You' : (msg.user?.name || msg.userName)}
                                         </p>
                                         <div className="relative">
-                                            <p className={`text-sm rounded-lg px-3 py-2 ${isMe ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-700'}`}>
+                                            <p className={`text-sm rounded-lg px-3 py-2 ${msg.isDeleted ? 'bg-red-50 text-red-600 italic' : (isMe ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-700')
+                                                }`}>
                                                 {msg.content}
                                             </p>
                                             {msg.reactions && msg.reactions.length > 0 && (
@@ -348,10 +350,10 @@ export default function UserChatPage() {
                                                     className="text-xs text-slate-400 hover:text-slate-600">
                                                     😊
                                                 </button>
-                                                {isMe && (
+                                                {isMe && !msg.isDeleted && (
                                                     <button
                                                         onClick={() => handleDeleteClick(msg)}
-                                                        className="text-xs text-slate-400 hover:text-red-600">
+                                                        className="opacity-0 group-hover:opacity-100 text-xs text-red-600 hover:text-red-700">
                                                         🗑️
                                                     </button>
                                                 )}
@@ -361,6 +363,12 @@ export default function UserChatPage() {
                                 </div>
                             );
                         })}
+
+                        {typingUsers.length > 0 && (
+                            <p className="text-xs text-slate-400 italic">
+                                {typingUsers[0].userName} is typing...
+                            </p>
+                        )}
                     </div>
 
                     <form onSubmit={handleSendMessage} className="p-4 border-t border-slate-200 flex gap-2 relative">
