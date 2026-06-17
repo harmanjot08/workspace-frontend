@@ -71,10 +71,14 @@ export const chatAPI = {
     },
 
     // Delete message
-    deleteMessage: async (token, messageId) => {
-        const res = await fetch(`${API_BASE}/chats/messages/${messageId}`, {
+    deleteMessage: async (token, messageId, deleteType = 'everyone') => {
+        const res = await fetch(`${API_BASE}/chat/messages/${messageId}`, {
             method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` },
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ deleteType }),
         });
         return res.json();
     },

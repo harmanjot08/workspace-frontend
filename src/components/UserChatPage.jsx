@@ -3,6 +3,7 @@ import { chatAPI } from '../api/chatApi.js';
 import { initSocket, joinChat, sendMessage, onReceiveMessage } from '../services/socketService.js';
 import { MessageSquare } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
+import DeleteMessageModal from '../../components/DeleteMessageModal.jsx';
 
 export default function UserChatPage() {
     const [chats, setChats] = useState([]);
@@ -13,6 +14,8 @@ export default function UserChatPage() {
     const [unreadCounts, setUnreadCounts] = useState({});
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [selectedMessageForReaction, setSelectedMessageForReaction] = useState(null);
+    const [deleteModal, setDeleteModal] = useState(false);
+    const [selectedMessage, setSelectedMessage] = useState(null);
 
     const token = localStorage.getItem('accessToken');
     const currentUser = JSON.parse(localStorage.getItem('user'));
@@ -162,6 +165,43 @@ export default function UserChatPage() {
         }
     };
 
+    const handleDeleteClick = (message) => {
+        setSelectedMessage(message);
+        setDeleteModal(true);
+    };
+
+    const handleDeleteForEveryone = async () => {
+        if (!selectedMessage) return;
+
+        try {
+            await chatAPI.deleteMessage(token, selectedMessage.id);
+            setMessages(prev => prev.filter(m => m.id !== selectedMessage.id));
+            setDeleteModal(false);
+            setSelectedMessage(null);
+        } catch (err) {
+            console.error('Delete error:', err);
+        }
+    };
+
+    const handleDeleteForMe = async () => {
+        if (!selectedMessage) return;
+
+        try {
+            await chatAPI.deleteMessage(token, selectedMessage.id, 'me');
+            setMessages(prev =>
+                prev.map(m =>
+                    m.id === selectedMessage.id
+                        ? { ...m, content: '[This message was deleted]', isDeleted: true }
+                        : m
+                )
+            );
+            setDeleteModal(false);
+            setSelectedMessage(null);
+        } catch (err) {
+            console.error('Delete error:', err);
+        }
+    };
+
     if (loading) return <div className="p-8 text-center">Loading chats...</div>;
 
     return (
@@ -299,14 +339,23 @@ export default function UserChatPage() {
                                                     ))}
                                                 </div>
                                             )}
-                                            <button
-                                                onClick={() => {
-                                                    setSelectedMessageForReaction(msg);
-                                                    setShowEmojiPicker(true);
-                                                }}
-                                                className="text-xs text-slate-400 hover:text-slate-600 ml-1">
-                                                😊
-                                            </button>
+                                            <div className="flex items-center gap-1 mt-1">
+                                                <button
+                                                    onClick={() => {
+                                                        setSelectedMessageForReaction(msg);
+                                                        setShowEmojiPicker(true);
+                                                    }}
+                                                    className="text-xs text-slate-400 hover:text-slate-600">
+                                                    😊
+                                                </button>
+                                                {isMe && (
+                                                    <button
+                                                        onClick={() => handleDeleteClick(msg)}
+                                                        className="text-xs text-slate-400 hover:text-red-600">
+                                                        🗑️
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -342,6 +391,18 @@ export default function UserChatPage() {
                 <div className="flex-1 flex items-center justify-center text-slate-600">
                     Select a chat to start messaging
                 </div>
+            )}
+            {deleteModal && (
+                <DeleteMessageModal
+                    message={selectedMessage}
+                    onDeleteForEveryone={handleDeleteForEveryone}
+                    onDeleteForMe={handleDeleteForMe}
+                    onCancel={() => {
+                        setDeleteModal(false);
+                        setSelectedMessage(null);
+                    }}
+                    loading={false}
+                />
             )}
         </div>
     );
