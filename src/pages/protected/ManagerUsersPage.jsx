@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { userAPI } from '../../api/userApi.js';
+import { userApi } from '../../api/userApi.js';
 import useAuthStore from '../../store/authStore.js';
 import { Plus, Upload } from 'lucide-react';
 import ManagerLayout from '../../components/ManagerLayout';
@@ -25,7 +25,7 @@ export default function ManagerUsersPage() {
         try {
             setLoading(true);
             const token = localStorage.getItem('accessToken');
-            const response = await userAPI.getAllUsers(token);
+            const response = await userApi.getAllUsers(token);
             if (response.users) {
                 setUsers(response.users);
             } else {
@@ -47,7 +47,7 @@ export default function ManagerUsersPage() {
         try {
             setAddLoading(true);
             const token = localStorage.getItem('accessToken');
-            const response = await userAPI.createUser(token, newUser);
+            const response = await userApi.createUser(token, newUser);
 
             if (response.user) {
                 setUsers(prev => [...prev, response.user]);
@@ -74,7 +74,7 @@ export default function ManagerUsersPage() {
             formData.append('file', csvFile);
 
             const token = localStorage.getItem('accessToken');
-            const response = await userAPI.bulkUploadUsers(token, formData);
+            const response = await userApi.bulkUploadUsers(token, formData);
 
             if (response.users) {
                 setUsers(prev => [...prev, ...response.users]);
@@ -91,7 +91,7 @@ export default function ManagerUsersPage() {
     const handleToggleUserStatus = async (userId, currentStatus) => {
         try {
             const token = localStorage.getItem('accessToken');
-            const response = await userAPI.updateUser(token, userId, {
+            const response = await userApi.updateUser(token, userId, {
                 isActive: !currentStatus
             });
 
@@ -166,8 +166,8 @@ export default function ManagerUsersPage() {
                                         <button
                                             onClick={() => handleToggleUserStatus(user.id, user.isActive)}
                                             className={`px-3 py-1 rounded-lg text-sm font-medium transition ${user.isActive
-                                                    ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                                                    : 'bg-green-100 text-green-700 hover:bg-green-200'
+                                                ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                                                : 'bg-green-100 text-green-700 hover:bg-green-200'
                                                 }`}>
                                             {user.isActive ? 'Deactivate' : 'Activate'}
                                         </button>
