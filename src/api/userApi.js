@@ -1,5 +1,5 @@
 const API_BASE = import.meta.env.VITE_API_URL || 'https://workspace-backend-pyb2.onrender.com/api';
-export const userAPI = {
+export const userApi = {
     // Get all users
     getAllUsers: async (token) => {
         const res = await fetch(`${API_BASE}/users`, {
@@ -71,17 +71,17 @@ export const userAPI = {
         });
         return res.json();
     },
-};
 
-// upload profile picture
-uploadProfilePicture: async (token, profilePicture) => {
-    const res = await fetch(`${API_BASE}/users/profile-picture`, {
-        method: 'PUT',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ profilePicture }),
-    });
-    return res.json();
-},
+    // Upload profile picture
+    uploadProfilePicture: async (token, profilePicture) => {
+        const res = await fetch(`${API_BASE}/users/profile-picture`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ profilePicture }),
+        });
+        return res.json();
+    },
+};
