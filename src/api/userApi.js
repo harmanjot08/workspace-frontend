@@ -72,3 +72,16 @@ export const userAPI = {
         return res.json();
     },
 };
+
+// upload profile picture
+uploadProfilePicture: async (token, profilePicture) => {
+    const res = await fetch(`${API_BASE}/users/profile-picture`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ profilePicture }),
+    });
+    return res.json();
+},

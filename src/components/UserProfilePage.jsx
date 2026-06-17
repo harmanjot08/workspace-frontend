@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { User, Mail, Phone, Building2, Calendar, Lock } from 'lucide-react';
+import { User, Mail, Phone, Building2, Calendar, Lock, Camera } from 'lucide-react';
+import { userApi } from '../api/userApi.js';
 
 export default function UserProfilePage() {
     const [profile, setProfile] = useState(null);
@@ -7,8 +8,41 @@ export default function UserProfilePage() {
     const [formData, setFormData] = useState(null);
     const [passwordData, setPasswordData] = useState({ current: '', new: '', confirm: '' });
     const [loading, setLoading] = useState(true);
+    const [profilePicture, setProfilePicture] = useState(null);
+    const [uploading, setUploading] = useState(false);
 
     const token = localStorage.getItem('accessToken');
+
+    const getInitials = (name) => {
+        return name
+            .split(' ')
+            .map(word => word[0])
+            .join('')
+            .toUpperCase();
+    };
+
+    const handleProfilePictureChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            const base64 = event.target.result;
+            setUploading(true);
+            try {
+                const res = await userApi.uploadProfilePicture(token, base64);
+                if (res.user) {
+                    setProfilePicture(base64);
+                    setFormData({ ...formData, profilePicture: base64 });
+                }
+            } catch (err) {
+                console.error('Upload error:', err);
+            } finally {
+                setUploading(false);
+            }
+        };
+        reader.readAsDataURL(file);
+    };
 
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('user'));
@@ -97,6 +131,35 @@ export default function UserProfilePage() {
                         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm">
                         {editMode ? 'Cancel' : 'Edit'}
                     </button>
+                </div>
+
+                <div className="mb-6 flex items-center gap-4">
+                    {profilePicture ? (
+                        <img
+                            src={profilePicture}
+                            alt="Profile"
+                            className="w-24 h-24 rounded-full object-cover border-2 border-slate-300"
+                        />
+                    ) : (
+                        <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center border-2 border-slate-300">
+                            <span className="text-2xl font-bold text-blue-700">
+                                {profile && getInitials(profile.name)}
+                            </span>
+                        </div>
+                    )}
+                    <div>
+                        <label className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer">
+                            <Camera className="w-4 h-4" />
+                            {uploading ? 'Uploading...' : 'Change Picture'}
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleProfilePictureChange}
+                                disabled={uploading}
+                                className="hidden"
+                            />
+                        </label>
+                    </div>
                 </div>
 
                 {editMode ? (
