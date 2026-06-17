@@ -512,7 +512,7 @@ export default function ManagerChatPage() {
                             className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500"
                         />
                         <label className="px-3 py-2 hover:bg-slate-100 rounded-lg cursor-pointer">
-                            📎
+                            📁
                             <input
                                 type="file"
                                 onChange={handleFileSelect}
