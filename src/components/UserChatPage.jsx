@@ -283,16 +283,7 @@ export default function UserChatPage() {
                         </button>
                         {showEmojiPicker && (
                             <div className="absolute bottom-16 right-0 z-50">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowEmojiPicker(false)}
-                                    className="absolute -top-8 -right-2 text-slate-400 hover:text-slate-600 text-lg font-bold z-50">
-                                    ✕
-                                </button>
-                                <EmojiPicker
-                                    onEmojiClick={handleEmojiClick}
-                                    skinTonesDisabled={true}
-                                />
+                                <EmojiPicker onEmojiClick={handleEmojiClick} />
                             </div>
                         )}
                     </form>

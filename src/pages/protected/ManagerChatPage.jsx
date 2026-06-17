@@ -4,7 +4,7 @@ import {
     initSocket, joinChat, sendMessage,
     onReceiveMessage, onUserTyping, onUserStoppedTyping
 } from '../../services/socketService.js';
-
+import EmojiPicker from 'emoji-picker-react';
 
 export default function ManagerChatPage() {
     const [chats, setChats] = useState([]);
@@ -19,6 +19,8 @@ export default function ManagerChatPage() {
     const [showGroupModal, setShowGroupModal] = useState(false);
     const [groupName, setGroupName] = useState('');
     const [selectedMembers, setSelectedMembers] = useState([]);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [selectedMessageForReaction, setSelectedMessageForReaction] = useState(null);
 
     const token = localStorage.getItem('accessToken');
     const currentUser = JSON.parse(localStorage.getItem('user'));
@@ -186,6 +188,30 @@ export default function ManagerChatPage() {
         }
     };
 
+    const handleEmojiClick = (emojiObject) => {
+        if (selectedMessageForReaction) {
+            // Reaction add karo
+            chatAPI.addReaction(token, selectedMessageForReaction.id, emojiObject.emoji)
+                .then(() => {
+                    setMessages(prev => prev.map(msg => {
+                        if (msg.id === selectedMessageForReaction.id) {
+                            return {
+                                ...msg,
+                                reactions: [...(msg.reactions || []), { emoji: emojiObject.emoji, userId: currentUser.id }]
+                            };
+                        }
+                        return msg;
+                    }));
+                    setShowEmojiPicker(false);
+                    setSelectedMessageForReaction(null);
+                })
+                .catch(err => console.error('Reaction error:', err));
+        } else {
+            // Message mein emoji type karo
+            setMessageText(prev => prev + emojiObject.emoji);
+        }
+    };
+
     if (loading) return <div className="p-8">Loading chats...</div>;
 
     return (
@@ -276,15 +302,38 @@ export default function ManagerChatPage() {
                             const isMe = msg.userId === currentUser.id || msg.user?.id === currentUser.id;
                             return (
                                 <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                                    <div className={`max-w-xs ${isMe ? 'items-end' : 'items-start'} flex flex-col`}>
+                                    <div className={`max-w-xs flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                                         <p className="text-xs text-slate-500 mb-1">
                                             {isMe ? 'You' : (msg.user?.name || msg.userName)}
                                         </p>
-                                        <p className={`text-sm rounded-lg px-3 py-2 ${isMe
-                                            ? 'bg-blue-500 text-white'
-                                            : 'bg-slate-100 text-slate-700'}`}>
-                                            {msg.content}
-                                        </p>
+                                        <div className="relative">
+                                            <p className={`text-sm rounded-lg px-3 py-2 ${isMe ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-700'}`}>
+                                                {msg.content}
+                                            </p>
+                                            {msg.reactions && msg.reactions.length > 0 && (
+                                                <div className="flex gap-1 mt-1 flex-wrap">
+                                                    {msg.reactions.map((reaction, idx) => (
+                                                        <button
+                                                            key={idx}
+                                                            onClick={() => {
+                                                                setSelectedMessageForReaction(msg);
+                                                                setShowEmojiPicker(true);
+                                                            }}
+                                                            className="text-sm hover:scale-125 cursor-pointer">
+                                                            {reaction.emoji}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedMessageForReaction(msg);
+                                                    setShowEmojiPicker(true);
+                                                }}
+                                                className="text-xs text-slate-400 hover:text-slate-600 ml-1">
+                                                👍
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             );
@@ -297,7 +346,7 @@ export default function ManagerChatPage() {
                         )}
                     </div>
 
-                    <form onSubmit={handleSendMessage} className="p-4 border-t border-slate-200 flex gap-2">
+                    <form onSubmit={handleSendMessage} className="p-4 border-t border-slate-200 flex gap-2 relative">
                         <input
                             type="text"
                             value={messageText}
@@ -306,10 +355,19 @@ export default function ManagerChatPage() {
                             className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500"
                         />
                         <button
-                            type="submit"
-                            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                            type="button"
+                            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                            className="px-3 py-2 text-xl hover:bg-slate-100 rounded-lg">
+                            😊
+                        </button>
+                        <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
                             Send
                         </button>
+                        {showEmojiPicker && (
+                            <div className="absolute bottom-16 right-0 z-50">
+                                <EmojiPicker onEmojiClick={handleEmojiClick} />
+                            </div>
+                        )}
                     </form>
                 </div>
             ) : (
