@@ -120,8 +120,6 @@ export default function UserChatPage() {
         }
     };
 
-    const [selectedFile, setSelectedFile] = useState(null);
-
     const handleFileSelect = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
