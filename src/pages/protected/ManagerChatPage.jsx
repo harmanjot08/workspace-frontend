@@ -256,28 +256,54 @@ export default function ManagerChatPage() {
 
                 {/* Chats list */}
                 <div className="flex-1 overflow-y-auto">
-                    {chats.map(chat => (
-                        <button
-                            key={chat.id}
-                            onClick={() => handleSelectChat(chat)}
-                            className={`w-full text-left px-4 py-3 border-b border-slate-100 transition ${selectedChat?.id === chat.id
-                                ? 'bg-blue-50 text-blue-600'
-                                : 'text-slate-700 hover:bg-slate-50'}`}>
-                            <div className="flex justify-between items-center">
-                                <p className="font-semibold text-sm">{getChatName(chat)}</p>
-                                {unreadCounts[chat.id] > 0 && (
-                                    <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                                        {unreadCounts[chat.id]}
-                                    </span>
+                    {chats.map(chat => {
+                        const otherUser = chat.chatMembers?.find(m => m.user.id !== currentUser.id)?.user;
+                        const getInitials = (name) => {
+                            return name
+                                .split(' ')
+                                .map(word => word[0])
+                                .join('')
+                                .toUpperCase();
+                        };
+
+                        return (
+                            <button
+                                key={chat.id}
+                                onClick={() => handleSelectChat(chat)}
+                                className={`w-full text-left px-4 py-3 border-b border-slate-100 transition flex items-center gap-3 ${selectedChat?.id === chat.id
+                                    ? 'bg-blue-50 text-blue-600'
+                                    : 'text-slate-700 hover:bg-slate-50'}`}>
+
+                                {otherUser?.profilePicture ? (
+                                    <img
+                                        src={otherUser.profilePicture}
+                                        alt={otherUser.name}
+                                        className="w-10 h-10 rounded-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-700">
+                                        {otherUser ? getInitials(otherUser.name) : '?'}
+                                    </div>
                                 )}
-                            </div>
-                            {chat.messages?.length > 0 && (
-                                <p className="text-xs text-slate-500 truncate mt-0.5">
-                                    {chat.messages[chat.messages.length - 1].content}
-                                </p>
-                            )}
-                        </button>
-                    ))}
+
+                                <div className="flex-1">
+                                    <div className="flex justify-between items-center">
+                                        <p className="font-semibold text-sm">{getChatName(chat)}</p>
+                                        {unreadCounts[chat.id] > 0 && (
+                                            <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                                                {unreadCounts[chat.id]}
+                                            </span>
+                                        )}
+                                    </div>
+                                    {chat.messages?.length > 0 && (
+                                        <p className="text-xs text-slate-500 truncate mt-0.5">
+                                            {chat.messages[chat.messages.length - 1].content}
+                                        </p>
+                                    )}
+                                </div>
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 
@@ -300,8 +326,32 @@ export default function ManagerChatPage() {
                     <div className="flex-1 overflow-y-auto p-4 space-y-3">
                         {messages.map(msg => {
                             const isMe = msg.userId === currentUser.id || msg.user?.id === currentUser.id;
+
+                            const getInitials = (name) => {
+                                return name
+                                    .split(' ')
+                                    .map(word => word[0])
+                                    .join('')
+                                    .toUpperCase();
+                            };
                             return (
-                                <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                                <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} gap-2`}>
+                                    {!isMe && (
+                                        <div>
+                                            {msg.user?.profilePicture ? (
+                                                <img
+                                                    src={msg.user.profilePicture}
+                                                    alt={msg.user?.name}
+                                                    className="w-8 h-8 rounded-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-700">
+                                                    {getInitials(msg.user?.name || msg.userName || 'U')}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
                                     <div className={`max-w-xs flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                                         <p className="text-xs text-slate-500 mb-1">
                                             {isMe ? 'You' : (msg.user?.name || msg.userName)}
