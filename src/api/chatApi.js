@@ -45,14 +45,19 @@ export const chatAPI = {
     },
 
     // Send message
-    sendMessage: async (token, chatId, content) => {
+    sendMessage: async (token, chatId, content, fileData = null) => {
         const res = await fetch(`${API_BASE}/chats/${chatId}/messages`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ content }),
+            body: JSON.stringify({
+                content,
+                fileUrl: fileData?.fileUrl,
+                fileName: fileData?.fileName,
+                fileType: fileData?.fileType,
+            }),
         });
         return res.json();
     },

@@ -24,6 +24,7 @@ export default function ManagerChatPage() {
     const [selectedMessageForReaction, setSelectedMessageForReaction] = useState(null);
     const [deleteModal, setDeleteModal] = useState(false);
     const [selectedMessage, setSelectedMessage] = useState(null);
+    const [selectedFile, setSelectedFile] = useState(null);
 
     const token = localStorage.getItem('accessToken');
     const currentUser = JSON.parse(localStorage.getItem('user'));
@@ -168,26 +169,47 @@ export default function ManagerChatPage() {
         }
     };
 
+    const handleFileSelect = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        try {
+            const reader = new FileReader();
+            reader.onload = async () => {
+                setSelectedFile({
+                    fileUrl: reader.result,
+                    fileName: file.name,
+                    fileType: file.type,
+                });
+            };
+            reader.readAsDataURL(file);
+        } catch (err) {
+            console.error('File read error:', err);
+        }
+    };
+
     const handleSendMessage = async (e) => {
         e.preventDefault();
-        if (!messageText.trim() || !selectedChat) return;
+        if ((!messageText.trim() && !selectedFile) || !selectedChat) return;
 
         const content = messageText;
         setMessageText('');
 
-        // Pehle DB mein save karo — real ID milegi
-        const res = await chatAPI.sendMessage(token, selectedChat.id, content);
+        const res = await chatAPI.sendMessage(token, selectedChat.id, content, selectedFile);
 
-        // DB se mila real message socket se bhejo
         if (res.data) {
             sendMessage({
-                id: res.data.id,  // real DB id
+                id: res.data.id,
                 content: res.data.content,
                 chatId: selectedChat.id,
                 userId: currentUser.id,
                 userName: currentUser.name,
+                fileUrl: res.data.fileUrl,
+                fileName: res.data.fileName,
+                fileType: res.data.fileType,
                 createdAt: res.data.createdAt,
             });
+            setSelectedFile(null);
         }
     };
 
@@ -402,6 +424,22 @@ export default function ManagerChatPage() {
                                                 }`}>
                                                 {msg.content}
                                             </p>
+                                            {msg.fileUrl && (
+                                                <div className="mt-2">
+                                                    {msg.fileType?.startsWith('image/') ? (
+                                                        <img src={msg.fileUrl} alt={msg.fileName} className="max-w-xs rounded-lg" />
+                                                    ) : msg.fileType?.startsWith('video/') ? (
+                                                        <video src={msg.fileUrl} controls className="max-w-xs rounded-lg" />
+                                                    ) : (
+                                                        <a
+                                                            href={msg.fileUrl}
+                                                            download={msg.fileName}
+                                                            className="flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-lg text-blue-600 hover:bg-blue-100">
+                                                            📄 {msg.fileName}
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            )}
                                             {msg.reactions && msg.reactions.length > 0 && (
                                                 <div className="flex gap-1 mt-1 flex-wrap">
                                                     {Array.from(new Set(msg.reactions.map(r => r.emoji))).map((emoji) => (
@@ -455,6 +493,14 @@ export default function ManagerChatPage() {
                             placeholder="Type a message..."
                             className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500"
                         />
+                        <label className="px-3 py-2 hover:bg-slate-100 rounded-lg cursor-pointer">
+                            📎
+                            <input
+                                type="file"
+                                onChange={handleFileSelect}
+                                className="hidden"
+                            />
+                        </label>
                         <button
                             type="button"
                             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
