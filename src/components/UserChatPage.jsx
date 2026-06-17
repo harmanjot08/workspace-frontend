@@ -3,7 +3,7 @@ import { chatAPI } from '../api/chatApi.js';
 import { initSocket, joinChat, sendMessage, onReceiveMessage } from '../services/socketService.js';
 import { MessageSquare } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
-import DeleteMessageModal from '../../components/DeleteMessageModal.jsx';
+import DeleteMessageModal from './DeleteMessageModal.jsx';
 
 export default function UserChatPage() {
     const [chats, setChats] = useState([]);
