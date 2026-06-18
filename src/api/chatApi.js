@@ -118,4 +118,26 @@ export const chatAPI = {
         });
         return res.json();
     },
+
+    pinChat: async (token, chatId) => {
+        const res = await fetch(`${API_BASE}/chats/${chatId}/pin`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        return res.json();
+    },
+
+    unpinChat: async (token, chatId) => {
+        const res = await fetch(`${API_BASE}/chats/${chatId}/unpin`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        return res.json();
+    },
 };

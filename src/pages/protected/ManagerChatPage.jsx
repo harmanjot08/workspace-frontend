@@ -90,9 +90,13 @@ export default function ManagerChatPage() {
             setLoading(true);
             const response = await chatAPI.getAllChats(token);
             if (response.chats) {
-                setChats(response.chats);
-                // auto join all rooms
-                response.chats.forEach(chat => joinChat(chat.id));
+                // Pinned chats pehle, phir baaki
+                const sorted = response.chats.sort((a, b) => {
+                    if (a.isPinned === b.isPinned) return 0;
+                    return a.isPinned ? -1 : 1;
+                });
+                setChats(sorted);
+                sorted.forEach(chat => joinChat(chat.id));
             }
         } catch (err) {
             console.error('fetchChats error:', err);
@@ -166,6 +170,28 @@ export default function ManagerChatPage() {
             }
         } catch (err) {
             console.error('handleCreateGroup error:', err);
+        }
+    };
+
+    const handlePinChat = async (chatId) => {
+        try {
+            const res = await chatAPI.pinChat(token, chatId);
+            if (res.chat) {
+                setChats(prev => prev.map(c => c.id === chatId ? res.chat : c));
+            }
+        } catch (err) {
+            console.error('Pin chat error:', err);
+        }
+    };
+
+    const handleUnpinChat = async (chatId) => {
+        try {
+            const res = await chatAPI.unpinChat(token, chatId);
+            if (res.chat) {
+                setChats(prev => prev.map(c => c.id === chatId ? res.chat : c));
+            }
+        } catch (err) {
+            console.error('Unpin chat error:', err);
         }
     };
 
@@ -360,6 +386,14 @@ export default function ManagerChatPage() {
                                                 {unreadCounts[chat.id]}
                                             </span>
                                         )}
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                chat.isPinned ? handleUnpinChat(chat.id) : handlePinChat(chat.id);
+                                            }}
+                                            className="text-sm opacity-0 group-hover:opacity-100 transition">
+                                            {chat.isPinned ? '📌' : '📍'}
+                                        </button>
                                     </div>
                                     {chat.messages?.length > 0 && (
                                         <p className="text-xs text-slate-500 truncate mt-0.5">
