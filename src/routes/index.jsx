@@ -209,15 +209,6 @@ export default function AppRoutes() {
                 />
 
                 <Route
-                    path="/manager/meeting/:meetingId"
-                    element={
-                        <ProtectedRoute requiredRole="manager">
-                            <MeetingPage />
-                        </ProtectedRoute>
-                    }
-                />
-
-                <Route
                     path="/manager/settings"
                     element={
                         <ProtectedRoute requiredRole="manager">
@@ -244,14 +235,7 @@ export default function AppRoutes() {
                     }
                 />
 
-                <Route
-                    path="/user/meeting/:meetingId"
-                    element={
-                        <ProtectedRoute requiredRole="user">
-                            <MeetingPage />
-                        </ProtectedRoute>
-                    }
-                />
+                <Route path="/meeting/:meetingId" element={<MeetingPage />} />
 
                 {/* 404 */}
                 <Route path="*" element={<Navigate to="/" replace />} />

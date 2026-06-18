@@ -5,35 +5,56 @@ export default function MeetingPage() {
     const { meetingId } = useParams();
 
     useEffect(() => {
-        // Load Jitsi Meet API
+        let api = null;
+
         const script = document.createElement('script');
         script.src = 'https://meet.jitsi.org/external_api.js';
         script.async = true;
-        document.body.appendChild(script);
 
         script.onload = () => {
+            if (!window.JitsiMeetExternalAPI) {
+                console.error('Jitsi failed to load');
+                return;
+            }
+
+            const container = document.getElementById('jitsi-container');
+
+            if (!container) {
+                console.error('Jitsi container not found');
+                return;
+            }
+
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+
             const options = {
                 roomName: meetingId,
-                parentNode: document.querySelector('#jitsi-container'),
-                configOverrides: {
+                parentNode: container,
+                width: '100%',
+                height: '100%',
+                userInfo: {
+                    email: user?.email || '',
+                    displayName: user?.name || 'Guest',
+                },
+                configOverwrite: {
                     startWithAudioMuted: false,
                     startWithVideoMuted: false,
                 },
-                interfaceConfigOverrides: {
-                    DEFAULT_LANGUAGE: 'en',
-                    DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
-                },
-                userInfo: {
-                    email: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).email : '',
-                    displayName: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).name : 'Guest',
-                },
             };
 
-            new window.JitsiMeetExternalAPI('meet.jitsi.org', options);
+            api = new window.JitsiMeetExternalAPI('meet.jitsi.org', options);
         };
 
+        script.onerror = () => {
+            console.error('Failed to load Jitsi script');
+        };
+
+        document.body.appendChild(script);
+
         return () => {
-            document.body.removeChild(script);
+            if (api) api.dispose();
+            if (document.body.contains(script)) {
+                document.body.removeChild(script);
+            }
         };
     }, [meetingId]);
 
