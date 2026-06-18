@@ -382,7 +382,7 @@ export default function UserChatPage() {
                                         <div className="relative">
                                             {msg.content.includes('Meeting Link:') ? (
                                                 <a
-                                                    href={msg.content.split('https://')[1] ? `https://${msg.content.split('https://')[1]}` : '#'}
+                                                    href={msg.content.match(/https?:\/\/[^\s]+/)?.[0] || '#'}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className={`text-sm rounded-lg px-3 py-2 underline cursor-pointer inline-block font-semibold ${isMe ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}>
