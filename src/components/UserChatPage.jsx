@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { chatApi } from '../api/chatApi.js';
+import { chatAPI } from '../../api/chatApi.js';
 import { initSocket, joinChat, sendMessage, onReceiveMessage } from '../services/socketService.js';
 import { MessageSquare } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
