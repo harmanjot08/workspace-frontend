@@ -150,5 +150,5 @@ export const chatAPI = {
             },
         });
         return res.json();
-    };
+    },
 };
