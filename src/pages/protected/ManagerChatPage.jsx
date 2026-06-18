@@ -458,10 +458,19 @@ export default function ManagerChatPage() {
                                             {isMe ? 'You' : (msg.user?.name || msg.userName)}
                                         </p>
                                         <div className="relative">
-                                            <p className={`text-sm rounded-lg px-3 py-2 ${msg.isDeleted ? 'bg-red-50 text-red-600 italic' : (isMe ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-700')
-                                                }`}>
-                                                {msg.content}
-                                            </p>
+                                            {msg.content.includes('Meeting Link:') ? (
+                                                <a
+                                                    href={msg.content.includes('https://') ? msg.content.split('https://')[1] ? `https://${msg.content.split('https://')[1]}` : '#' : '#'}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className={`text-sm rounded-lg px-3 py-2 underline cursor-pointer inline-block font-semibold ${isMe ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}>
+                                                    📞 Click to join meeting
+                                                </a>
+                                            ) : (
+                                                <p className={`text-sm rounded-lg px-3 py-2 ${msg.isDeleted ? 'bg-red-50 text-red-600 italic' : (isMe ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-700')}`}>
+                                                    {msg.content}
+                                                </p>
+                                            )}
                                             {msg.fileUrl && (
                                                 <div className="mt-2">
                                                     {msg.fileType?.startsWith('image/') ? (
