@@ -151,4 +151,4 @@ sendMeetingLink: async (token, chatId) => {
         },
     });
     return res.json();
-},
+};
