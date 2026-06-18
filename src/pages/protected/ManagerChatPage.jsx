@@ -362,7 +362,7 @@ export default function ManagerChatPage() {
                             <button
                                 key={chat.id}
                                 onClick={() => handleSelectChat(chat)}
-                                className={`w-full text-left px-4 py-3 border-b border-slate-100 transition flex items-center gap-3 ${selectedChat?.id === chat.id
+                                className={`w-full text-left px-4 py-3 border-b border-slate-100 transition flex items-center gap-3 group ${selectedChat?.id === chat.id
                                     ? 'bg-blue-50 text-blue-600'
                                     : 'text-slate-700 hover:bg-slate-50'}`}>
 
