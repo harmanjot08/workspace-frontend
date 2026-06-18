@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { chatAPI } from '../api/chatApi.js';
+import { chatApi } from '../api/chatApi.js';
 import { initSocket, joinChat, sendMessage, onReceiveMessage } from '../services/socketService.js';
 import { MessageSquare } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
@@ -75,7 +75,7 @@ export default function UserChatPage() {
             const chat = JSON.parse(savedChat);
             setSelectedChat(chat);
             joinChat(chat.id);
-            chatAPI.getChat(token, chat.id).then(response => {
+            chatApi.getChat(token, chat.id).then(response => {
                 if (response.chat) setMessages(response.chat.messages);
             });
         }
@@ -88,7 +88,7 @@ export default function UserChatPage() {
     const fetchChats = async () => {
         try {
             setLoading(true);
-            const response = await chatAPI.getAllChats(token);
+            const response = await chatApi.getAllChats(token);
             if (response.chats) {
                 // Pinned chats pehle, phir baaki
                 const sorted = response.chats.sort((a, b) => {
@@ -118,7 +118,7 @@ export default function UserChatPage() {
         localStorage.setItem('selectedChat', JSON.stringify(chat));
         joinChat(chat.id);
         try {
-            const response = await chatAPI.getChat(token, chat.id);
+            const response = await chatApi.getChat(token, chat.id);
             if (response.chat) setMessages(response.chat.messages);
         } catch (error) {
             console.error('handleSelectChat error:', error);
@@ -127,7 +127,7 @@ export default function UserChatPage() {
 
     const handlePinChat = async (chatId) => {
         try {
-            const res = await chatAPI.pinChat(token, chatId);
+            const res = await chatApi.pinChat(token, chatId);
             if (res.chat) {
                 setChats(prev => prev.map(c => c.id === chatId ? res.chat : c));
             }
@@ -138,7 +138,7 @@ export default function UserChatPage() {
 
     const handleUnpinChat = async (chatId) => {
         try {
-            const res = await chatAPI.unpinChat(token, chatId);
+            const res = await chatApi.unpinChat(token, chatId);
             if (res.chat) {
                 setChats(prev => prev.map(c => c.id === chatId ? res.chat : c));
             }
@@ -173,7 +173,7 @@ export default function UserChatPage() {
         const content = messageText;
         setMessageText('');
 
-        const res = await chatAPI.sendMessage(token, selectedChat.id, content, selectedFile);
+        const res = await chatApi.sendMessage(token, selectedChat.id, content, selectedFile);
 
         if (res.data) {
             sendMessage({
@@ -194,7 +194,7 @@ export default function UserChatPage() {
     const handleEmojiClick = (emojiObject) => {
         if (selectedMessageForReaction) {
             // Reaction add karo
-            chatAPI.addReaction(token, selectedMessageForReaction.id, emojiObject.emoji)
+            chatApi.addReaction(token, selectedMessageForReaction.id, emojiObject.emoji)
                 .then(() => {
                     setMessages(prev => prev.map(msg => {
                         if (msg.id === selectedMessageForReaction.id) {
@@ -224,7 +224,7 @@ export default function UserChatPage() {
         if (!selectedMessage) return;
 
         try {
-            await chatAPI.deleteMessage(token, selectedMessage.id);
+            await chatApi.deleteMessage(token, selectedMessage.id);
             setMessages(prev => prev.filter(m => m.id !== selectedMessage.id));
             setDeleteModal(false);
             setSelectedMessage(null);
@@ -237,7 +237,7 @@ export default function UserChatPage() {
         if (!selectedMessage) return;
 
         try {
-            await chatAPI.deleteMessage(token, selectedMessage.id, 'me');
+            await chatApi.deleteMessage(token, selectedMessage.id, 'me');
             setMessages(prev =>
                 prev.map(m =>
                     m.id === selectedMessage.id
@@ -449,7 +449,7 @@ export default function UserChatPage() {
                         <button
                             type="button"
                             onClick={async () => {
-                                const res = await chatAPI.sendMeetingLink(token, selectedChat.id);
+                                const res = await chatApi.sendMeetingLink(token, selectedChat.id);
                                 if (res.data) {
                                     sendMessage({
                                         id: res.data.id,

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { chatAPI } from '../../api/chatApi.js';
+import { chatApi } from '../../api/chatApi.js';
 import {
     initSocket, joinChat, sendMessage,
     onReceiveMessage, onUserTyping, onUserStoppedTyping
@@ -88,7 +88,7 @@ export default function ManagerChatPage() {
     const fetchChats = async () => {
         try {
             setLoading(true);
-            const response = await chatAPI.getAllChats(token);
+            const response = await chatApi.getAllChats(token);
             if (response.chats) {
                 // Pinned chats pehle, phir baaki
                 const sorted = response.chats.sort((a, b) => {
@@ -107,7 +107,7 @@ export default function ManagerChatPage() {
 
     const fetchUsers = async () => {
         try {
-            const response = await chatAPI.getUsers(token);
+            const response = await chatApi.getUsers(token);
             if (response.users) setUsers(response.users);
         } catch (err) {
             console.error('fetchUsers error:', err);
@@ -127,7 +127,7 @@ export default function ManagerChatPage() {
         localStorage.setItem('selectedChat', JSON.stringify(chat));
         joinChat(chat.id);
         try {
-            const response = await chatAPI.getChat(token, chat.id);
+            const response = await chatApi.getChat(token, chat.id);
             if (response.chat) setMessages(response.chat.messages);
         } catch (err) {
             console.error('handleSelectChat error:', err);
@@ -136,7 +136,7 @@ export default function ManagerChatPage() {
 
     const handleCreateChat = async (otherUserId) => {
         try {
-            const response = await chatAPI.createChat(token, {
+            const response = await chatApi.createChat(token, {
                 memberIds: [otherUserId],
                 isGroup: false,
             });
@@ -156,7 +156,7 @@ export default function ManagerChatPage() {
             return;
         }
         try {
-            const response = await chatAPI.createChat(token, {
+            const response = await chatApi.createChat(token, {
                 memberIds: selectedMembers,
                 isGroup: true,
                 chatName: groupName,
@@ -175,7 +175,7 @@ export default function ManagerChatPage() {
 
     const handlePinChat = async (chatId) => {
         try {
-            const res = await chatAPI.pinChat(token, chatId);
+            const res = await chatApi.pinChat(token, chatId);
             if (res.chat) {
                 setChats(prev => prev.map(c => c.id === chatId ? res.chat : c));
             }
@@ -186,7 +186,7 @@ export default function ManagerChatPage() {
 
     const handleUnpinChat = async (chatId) => {
         try {
-            const res = await chatAPI.unpinChat(token, chatId);
+            const res = await chatApi.unpinChat(token, chatId);
             if (res.chat) {
                 setChats(prev => prev.map(c => c.id === chatId ? res.chat : c));
             }
@@ -223,7 +223,7 @@ export default function ManagerChatPage() {
         setMessageText('');
         setSelectedFile(null);  // Clear pehle
 
-        const res = await chatAPI.sendMessage(token, selectedChat.id, content, fileData);
+        const res = await chatApi.sendMessage(token, selectedChat.id, content, fileData);
 
         if (res.data) {
             sendMessage({
@@ -246,7 +246,7 @@ export default function ManagerChatPage() {
     const handleEmojiClick = (emojiObject) => {
         if (selectedMessageForReaction) {
             // Reaction add karo
-            chatAPI.addReaction(token, selectedMessageForReaction.id, emojiObject.emoji)
+            chatApi.addReaction(token, selectedMessageForReaction.id, emojiObject.emoji)
                 .then(() => {
                     setMessages(prev => prev.map(msg => {
                         if (msg.id === selectedMessageForReaction.id) {
@@ -276,7 +276,7 @@ export default function ManagerChatPage() {
         if (!selectedMessage) return;
 
         try {
-            await chatAPI.deleteMessage(token, selectedMessage.id);
+            await chatApi.deleteMessage(token, selectedMessage.id);
             setMessages(prev => prev.filter(m => m.id !== selectedMessage.id));
             setDeleteModal(false);
             setSelectedMessage(null);
@@ -289,7 +289,7 @@ export default function ManagerChatPage() {
         if (!selectedMessage) return;
 
         try {
-            await chatAPI.deleteMessage(token, selectedMessage.id, 'me');
+            await chatApi.deleteMessage(token, selectedMessage.id, 'me');
             setMessages(prev =>
                 prev.map(m =>
                     m.id === selectedMessage.id
@@ -527,7 +527,7 @@ export default function ManagerChatPage() {
                         <button
                             type="button"
                             onClick={async () => {
-                                const res = await chatAPI.sendMeetingLink(token, selectedChat.id);
+                                const res = await chatApi.sendMeetingLink(token, selectedChat.id);
                                 if (res.data) {
                                     sendMessage({
                                         id: res.data.id,
