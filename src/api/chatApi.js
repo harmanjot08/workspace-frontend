@@ -2,7 +2,7 @@ import { ChartNoAxesColumnDecreasing } from "lucide-react";
 
 const API_BASE = import.meta.env.VITE_API_URL || 'https://workspace-backend-pyb2.onrender.com/api';
 
-export const chatAPI = {
+export const chatApi = {
     // Create chat
     createChat: async (token, { memberIds, isGroup, chatName }) => {
         const res = await fetch(`${API_BASE}/chats`, {
