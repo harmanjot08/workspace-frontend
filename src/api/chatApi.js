@@ -141,3 +141,14 @@ export const chatAPI = {
         return res.json();
     },
 };
+
+sendMeetingLink: async (token, chatId) => {
+    const res = await fetch(`${API_BASE}/chats/${chatId}/meeting-link`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+    });
+    return res.json();
+},

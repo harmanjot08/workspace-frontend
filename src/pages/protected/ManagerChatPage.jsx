@@ -524,6 +524,28 @@ export default function ManagerChatPage() {
                     </div>
 
                     <form onSubmit={handleSendMessage} className="p-4 border-t border-slate-200 flex gap-2 relative">
+                        <button
+                            type="button"
+                            onClick={async () => {
+                                const res = await chatAPI.sendMeetingLink(token, selectedChat.id);
+                                if (res.data) {
+                                    sendMessage({
+                                        id: res.data.id,
+                                        content: res.data.content,
+                                        chatId: selectedChat.id,
+                                        userId: currentUser.id,
+                                        userName: currentUser.name,
+                                        createdAt: res.data.createdAt,
+                                        user: {
+                                            id: currentUser.id,
+                                            name: currentUser.name,
+                                        }
+                                    });
+                                }
+                            }}
+                            className="px-3 py-2 hover:bg-slate-100 rounded-lg cursor-pointer text-lg">
+                            📞
+                        </button>
                         {selectedFile && (
                             <div className="absolute -top-20 left-0 bg-slate-50 p-2 rounded-lg border border-slate-200">
                                 <p className="text-xs text-slate-600 mb-1">Selected: {selectedFile.fileName}</p>
