@@ -312,7 +312,7 @@ export default function UserChatPage() {
                                                     e.stopPropagation();
                                                     chat.isPinned ? handleUnpinChat(chat.id) : handlePinChat(chat.id);
                                                 }}
-                                                className="text-sm opacity-0 group-hover:opacity-100 transition">
+                                                className="text-sm text-slate-400 hover:text-slate-600">
                                                 {chat.isPinned ? '📌' : '📍'}
                                             </button>
                                         </div>
