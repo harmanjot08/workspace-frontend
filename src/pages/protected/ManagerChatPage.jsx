@@ -6,6 +6,7 @@ import {
 } from '../../services/socketService.js';
 import EmojiPicker from 'emoji-picker-react';
 import DeleteMessageModal from '../../components/DeleteMessageModal.jsx';
+import { useNavigate } from 'react-router-dom';
 
 export default function ManagerChatPage() {
     const [chats, setChats] = useState([]);
@@ -28,6 +29,7 @@ export default function ManagerChatPage() {
 
     const token = localStorage.getItem('accessToken');
     const currentUser = JSON.parse(localStorage.getItem('user'));
+    const navigate = useNavigate();
 
     useEffect(() => {
         const socket = initSocket(token);
@@ -459,13 +461,17 @@ export default function ManagerChatPage() {
                                         </p>
                                         <div className="relative">
                                             {msg.content.includes('Meeting Link:') ? (
-                                                <a
-                                                    href={msg.content.match(/https?:\/\/[^\s]+/)?.[0] || '#'}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
+                                                <button
+                                                    onClick={() => {
+                                                        const url = msg.content.match(/https?:\/\/[^\s]+/)?.[0];
+                                                        if (url) {
+                                                            const path = new URL(url).pathname; // sirf "/meeting/meet-xxxx" nikal lega
+                                                            navigate(path);
+                                                        }
+                                                    }}
                                                     className={`text-sm rounded-lg px-3 py-2 underline cursor-pointer inline-block font-semibold ${isMe ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}>
                                                     📞 Click to join meeting
-                                                </a>
+                                                </button>
                                             ) : (
                                                 <p className={`text-sm rounded-lg px-3 py-2 ${msg.isDeleted ? 'bg-red-50 text-red-600 italic' : (isMe ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-700')}`}>
                                                     {msg.content}
