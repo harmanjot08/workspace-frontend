@@ -10,6 +10,7 @@ import {
     onReceiveAnswer,
     onReceiveIceCandidate,
 } from '../../services/socketService';
+import { getSocket } from '../../services/socketService';
 
 export default function MeetingPage() {
     const { meetingId } = useParams();
@@ -29,6 +30,13 @@ export default function MeetingPage() {
     };
 
     useEffect(() => {
+        const socket = getSocket();
+        if (socket) {
+            socket.onAny((eventName, ...args) => {
+                console.log('🔵 RAW EVENT RECEIVED:', eventName, args);
+            });
+        }
+
         const setupMeeting = async () => {
             try {
                 // Get camera + mic 
