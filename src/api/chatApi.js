@@ -30,9 +30,16 @@ export const chatApi = {
 
     // Get all chats
     getAllChats: async (token) => {
+        console.log("TOKEN SENT:", token);
+
         const res = await fetch(`${API_BASE}/chats`, {
-            headers: { 'Authorization': `Bearer ${token}` },
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
         });
+
+        console.log("STATUS:", res.status);
+
         return res.json();
     },
 
