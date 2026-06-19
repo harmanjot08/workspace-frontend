@@ -36,6 +36,7 @@ export const joinChat = (chatId) => {
 };
 
 export const joinMeeting = (meetingId) => {
+    console.log('🟡 joinMeeting called. Socket exists?', !!socket, 'Socket connected?', socket?.connected);
     if (socket) socket.emit('join-meeting', meetingId);
 };
 
