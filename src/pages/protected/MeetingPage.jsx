@@ -74,6 +74,14 @@ export default function MeetingPage() {
                 }
             };
 
+            peerConnection.onconnectionstatechange = () => {
+                console.log("Connection state:", peerConnection.connectionState);
+            };
+
+            peerConnection.oniceconnectionstatechange = () => {
+                console.log("ICE connection state:", peerConnection.iceConnectionState);
+            };
+
             localStreamRef.current.getTracks().forEach(track => {
                 peerConnection.addTrack(track, localStreamRef.current);
             });
@@ -85,51 +93,46 @@ export default function MeetingPage() {
 
         onUserJoined(async () => {
             console.log("Another user joined");
-
-            const peerConnection = createPeerConnection();
-
-            const offer = await peerConnection.createOffer();
-            await peerConnection.setLocalDescription(offer);
-
-            sendOffer({
-                meetingId,
-                offer,
-            });
+            try {
+                const peerConnection = createPeerConnection();
+                const offer = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(offer);
+                sendOffer({ meetingId, offer });
+            } catch (err) {
+                console.error("Offer creation failed:", err);
+            }
         });
 
         onReceiveOffer(async ({ offer }) => {
             console.log("Offer received");
-
-            const peerConnection = createPeerConnection();
-
-            await peerConnection.setRemoteDescription(
-                new RTCSessionDescription(offer)
-            );
-
-            const answer = await peerConnection.createAnswer();
-            await peerConnection.setLocalDescription(answer);
-
-            sendAnswer({
-                meetingId,
-                answer,
-            });
+            try {
+                const peerConnection = createPeerConnection();
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+                const answer = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answer);
+                sendAnswer({ meetingId, answer });
+            } catch (err) {
+                console.error("Answer creation failed:", err);
+            }
         });
 
         onReceiveAnswer(async ({ answer }) => {
             console.log("Answer received");
-
-            await peerConnectionRef.current.setRemoteDescription(
-                new RTCSessionDescription(answer)
-            );
+            try {
+                await peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(answer));
+            } catch (err) {
+                console.error("Setting remote answer failed:", err);
+            }
         });
 
         onReceiveIceCandidate(async ({ candidate }) => {
             console.log("ICE candidate received");
-
-            if (peerConnectionRef.current) {
-                await peerConnectionRef.current.addIceCandidate(
-                    new RTCIceCandidate(candidate)
-                );
+            try {
+                if (peerConnectionRef.current) {
+                    await peerConnectionRef.current.addIceCandidate(new RTCIceCandidate(candidate));
+                }
+            } catch (err) {
+                console.error("Adding ICE candidate failed:", err);
             }
         });
 
