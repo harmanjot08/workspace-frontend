@@ -28,54 +28,41 @@ export default function MeetingPage() {
         ],
     };
 
-    const createPeerConnection = () => {
-        const peerConnection = new RTCPeerConnection(servers);
-
-        peerConnection.ontrack = (event) => {
-            console.log("Remote stream received");
-
-            if (remoteVideoRef.current) {
-                remoteVideoRef.current.srcObject = event.streams[0];
-            }
-        };
-
-        peerConnection.onicecandidate = (event) => {
-            if (event.candidate) {
-                sendIceCandidate({
-                    meetingId,
-                    candidate: event.candidate,
-                });
-            }
-        };
-
-        localStreamRef.current.getTracks().forEach(track => {
-            peerConnection.addTrack(track, localStreamRef.current);
-        });
-
-        peerConnectionRef.current = peerConnection;
-
-        return peerConnection;
-    };
-
     useEffect(() => {
         const setupMeeting = async () => {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: true,
-                audio: true,
-            });
+            try {
+                // Get camera + mic 
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: true,
+                });
 
-            localStreamRef.current = stream;
-            localVideoRef.current.srcObject = stream;
+                localStreamRef.current = stream;
 
+                if (localVideoRef.current) {
+                    localVideoRef.current.srcObject = stream;
+                }
+
+                // Join meeting room 
+                joinMeeting(meetingId);
+
+                console.log('Joined meeting:', meetingId);
+            } catch (error) {
+                console.error('Error accessing media devices:', error);
+            }
+        };
+
+        setupMeeting();
+
+        const createPeerConnection = () => {
             const peerConnection = new RTCPeerConnection(servers);
-            peerConnectionRef.current = peerConnection;
-
-            stream.getTracks().forEach(track => {
-                peerConnection.addTrack(track, stream);
-            });
 
             peerConnection.ontrack = (event) => {
-                remoteVideoRef.current.srcObject = event.streams[0];
+                console.log("Remote stream received");
+
+                if (remoteVideoRef.current) {
+                    remoteVideoRef.current.srcObject = event.streams[0];
+                }
             };
 
             peerConnection.onicecandidate = (event) => {
@@ -87,14 +74,22 @@ export default function MeetingPage() {
                 }
             };
 
-            joinMeeting(meetingId);
+            localStreamRef.current.getTracks().forEach(track => {
+                peerConnection.addTrack(track, localStreamRef.current);
+            });
+
+            peerConnectionRef.current = peerConnection;
+
+            return peerConnection;
         };
 
-        setupMeeting();
-
         onUserJoined(async () => {
-            const offer = await peerConnectionRef.current.createOffer();
-            await peerConnectionRef.current.setLocalDescription(offer);
+            console.log("Another user joined");
+
+            const peerConnection = createPeerConnection();
+
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
 
             sendOffer({
                 meetingId,
@@ -103,12 +98,16 @@ export default function MeetingPage() {
         });
 
         onReceiveOffer(async ({ offer }) => {
-            await peerConnectionRef.current.setRemoteDescription(
+            console.log("Offer received");
+
+            const peerConnection = createPeerConnection();
+
+            await peerConnection.setRemoteDescription(
                 new RTCSessionDescription(offer)
             );
 
-            const answer = await peerConnectionRef.current.createAnswer();
-            await peerConnectionRef.current.setLocalDescription(answer);
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
 
             sendAnswer({
                 meetingId,
@@ -117,13 +116,17 @@ export default function MeetingPage() {
         });
 
         onReceiveAnswer(async ({ answer }) => {
+            console.log("Answer received");
+
             await peerConnectionRef.current.setRemoteDescription(
                 new RTCSessionDescription(answer)
             );
         });
 
         onReceiveIceCandidate(async ({ candidate }) => {
-            if (candidate) {
+            console.log("ICE candidate received");
+
+            if (peerConnectionRef.current) {
                 await peerConnectionRef.current.addIceCandidate(
                     new RTCIceCandidate(candidate)
                 );
@@ -132,47 +135,34 @@ export default function MeetingPage() {
 
         return () => {
             if (localStreamRef.current) {
-                localStreamRef.current.getTracks().forEach(track => track.stop());
+                localStreamRef.current.getTracks().forEach(track =>
+                    track.stop());
             }
         };
     }, [meetingId]);
 
     return (
-        <div className="w-full h-screen bg-slate-900 flex flex-col items-center justify-center">
+        <div className="w-full h-screen bg-slate-900 flex flex-col items-
+            center justify-center">
             <h1 className="text-white text-2xl font-bold mb-6">
                 Meeting Room
             </h1>
 
-            <div className="flex gap-4">
-                <div className="flex gap-4">
-                    <div className="w-[500px] h-[350px] bg-black rounded-xl overflow-hidden">
-                        <video
-                            ref={localVideoRef}
-                            autoPlay
-                            playsInline
-                            muted
-                            className="w-full h-full object-cover"
-                        />
-                    </div>
+            <div className="grid grid-cols-2 gap-4 w-[900px]">
+                <video
+                    ref={localVideoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="w-full h-[400px] bg-black rounded-xl object-cover"
+                />
 
-                    <div className="w-[500px] h-[350px] bg-black rounded-xl overflow-hidden">
-                        <video
-                            ref={remoteVideoRef}
-                            autoPlay
-                            playsInline
-                            className="w-full h-full object-cover"
-                        />
-                    </div>
-                </div>
-
-                <div className="w-[500px] h-[350px] bg-black rounded-xl overflow-hidden">
-                    <video
-                        ref={remoteVideoRef}
-                        autoPlay
-                        playsInline
-                        className="w-full h-full object-cover"
-                    />
-                </div>
+                <video
+                    ref={remoteVideoRef}
+                    autoPlay
+                    playsInline
+                    className="w-full h-[400px] bg-black rounded-xl object-cover"
+                />
             </div>
         </div>
     );
