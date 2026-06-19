@@ -29,84 +29,150 @@ export default function MeetingPage() {
     };
 
     useEffect(() => {
+        let peerConnection;
+
         const setupMeeting = async () => {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: true,
-                audio: true,
-            });
+            try {
+                // 1. Get user media
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: true,
+                });
 
-            localStreamRef.current = stream;
-            localVideoRef.current.srcObject = stream;
+                localStreamRef.current = stream;
 
-            const peerConnection = new RTCPeerConnection(servers);
-            peerConnectionRef.current = peerConnection;
-
-            stream.getTracks().forEach(track => {
-                peerConnection.addTrack(track, stream);
-            });
-
-            peerConnection.ontrack = (event) => {
-                remoteVideoRef.current.srcObject = event.streams[0];
-            };
-
-            peerConnection.onicecandidate = (event) => {
-                if (event.candidate) {
-                    sendIceCandidate({
-                        meetingId,
-                        candidate: event.candidate,
-                    });
+                if (localVideoRef.current) {
+                    localVideoRef.current.srcObject = stream;
                 }
-            };
 
-            joinMeeting(meetingId);
+                // 2. Create peer connection
+                peerConnection = new RTCPeerConnection(servers);
+                peerConnectionRef.current = peerConnection;
+
+                // 3. Add tracks to peer connection
+                stream.getTracks().forEach((track) => {
+                    peerConnection.addTrack(track, stream);
+                });
+
+                // 4. Remote stream handler
+                peerConnection.ontrack = (event) => {
+                    console.log("REMOTE STREAM RECEIVED");
+                    if (remoteVideoRef.current) {
+                        remoteVideoRef.current.srcObject = event.streams[0];
+                    }
+                };
+
+                // 5. ICE candidate handler
+                peerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        sendIceCandidate({
+                            meetingId,
+                            candidate: event.candidate,
+                        });
+                    }
+                };
+
+                // 6. Join meeting room
+                joinMeeting(meetingId);
+
+                // =========================
+                // SOCKET EVENTS (ALL INSIDE)
+                // =========================
+
+                onUserJoined(async () => {
+                    console.log("USER JOINED EVENT FIRED");
+
+                    const pc = peerConnectionRef.current;
+                    if (!pc) return;
+
+                    const offer = await pc.createOffer();
+                    await pc.setLocalDescription(offer);
+
+                    console.log("SENDING OFFER");
+
+                    sendOffer({
+                        meetingId,
+                        offer,
+                    });
+                });
+
+                onReceiveOffer(async ({ offer }) => {
+                    console.log("OFFER RECEIVED");
+
+                    const pc = peerConnectionRef.current;
+                    if (!pc) return;
+
+                    await pc.setRemoteDescription(
+                        new RTCSessionDescription(offer)
+                    );
+
+                    const answer = await pc.createAnswer();
+                    await pc.setLocalDescription(answer);
+
+                    console.log("SENDING ANSWER");
+
+                    sendAnswer({
+                        meetingId,
+                        answer,
+                    });
+                });
+
+                onReceiveAnswer(async ({ answer }) => {
+                    console.log("ANSWER RECEIVED");
+
+                    const pc = peerConnectionRef.current;
+                    if (!pc) return;
+
+                    await pc.setRemoteDescription(
+                        new RTCSessionDescription(answer)
+                    );
+                });
+
+                onReceiveIceCandidate(async ({ candidate }) => {
+                    console.log("ICE RECEIVED");
+
+                    const pc = peerConnectionRef.current;
+                    if (!pc) return;
+
+                    if (candidate) {
+                        await pc.addIceCandidate(
+                            new RTCIceCandidate(candidate)
+                        );
+                    }
+                });
+
+            } catch (error) {
+                console.error("Error in setupMeeting:", error);
+            }
         };
 
         setupMeeting();
 
-        onUserJoined(async () => {
-            const offer = await peerConnectionRef.current.createOffer();
-            await peerConnectionRef.current.setLocalDescription(offer);
-
-            sendOffer({
-                meetingId,
-                offer,
-            });
-        });
-
-        onReceiveOffer(async ({ offer }) => {
-            await peerConnectionRef.current.setRemoteDescription(
-                new RTCSessionDescription(offer)
-            );
-
-            const answer = await peerConnectionRef.current.createAnswer();
-            await peerConnectionRef.current.setLocalDescription(answer);
-
-            sendAnswer({
-                meetingId,
-                answer,
-            });
-        });
-
-        onReceiveAnswer(async ({ answer }) => {
-            await peerConnectionRef.current.setRemoteDescription(
-                new RTCSessionDescription(answer)
-            );
-        });
-
-        onReceiveIceCandidate(async ({ candidate }) => {
-            if (candidate) {
-                await peerConnectionRef.current.addIceCandidate(
-                    new RTCIceCandidate(candidate)
-                );
-            }
-        });
-
+        // =========================
+        // CLEANUP
+        // =========================
         return () => {
             if (localStreamRef.current) {
-                localStreamRef.current.getTracks().forEach(track => track.stop());
+                localStreamRef.current
+                    .getTracks()
+                    .forEach((track) => track.stop());
+            }
+
+            if (peerConnectionRef.current) {
+                peerConnectionRef.current.close();
             }
         };
     }, [meetingId]);
+
+    return () => {
+        if (localStreamRef.current) {
+            localStreamRef.current.getTracks().forEach(track => track.stop());
+        }
+
+        if (peerConnectionRef.current) {
+            peerConnectionRef.current.close();
+        }
+    };
 
     return (
         <div className="w-full h-screen bg-slate-900 flex flex-col items-center justify-center">
