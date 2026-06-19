@@ -28,6 +28,7 @@ import ManagerChatPage from '../pages/protected/ManagerChatPage';
 import SettingsPage from '../pages/protected/SettingsPage';
 import UserDashboard from '../pages/protected/UserDashboard';
 import UserChatPage from '../components/UserChatPage';
+import MeetingPage from '../pages/protected/MeetingPage';
 
 const PublicRoute = ({ children }) => {
     const { isAuthenticated, user } = useAuthStore();
@@ -232,6 +233,11 @@ export default function AppRoutes() {
                             <UserChatPage />
                         </ProtectedRoute>
                     }
+                />
+
+                <Route
+                    path="/meeting/:meetingId"
+                    element={<MeetingPage />}
                 />
 
                 {/* 404 */}

@@ -35,6 +35,22 @@ export const joinChat = (chatId) => {
     if (socket) socket.emit('join-chat', chatId);
 };
 
+export const joinMeeting = (meetingId) => {
+    if (socket) socket.emit('join-meeting', meetingId);
+};
+
+export const sendOffer = (data) => {
+    if (socket) socket.emit('offer', data);
+};
+
+export const sendAnswer = (data) => {
+    if (socket) socket.emit('answer', data);
+};
+
+export const sendIceCandidate = (data) => {
+    if (socket) socket.emit('ice-candidate', data);
+};
+
 export const sendMessage = (messageData) => {
     if (socket) socket.emit('send-message', messageData);
 };
@@ -43,6 +59,34 @@ export const onReceiveMessage = (callback) => {
     if (socket) {
         socket.off('receive-message'); // remove old listener first
         socket.on('receive-message', callback);
+    }
+};
+
+export const onUserJoined = (callback) => {
+    if (socket) {
+        socket.off('user-joined');
+        socket.on('user-joined', callback);
+    }
+};
+
+export const onReceiveOffer = (callback) => {
+    if (socket) {
+        socket.off('offer');
+        socket.on('offer', callback);
+    }
+};
+
+export const onReceiveAnswer = (callback) => {
+    if (socket) {
+        socket.off('answer');
+        socket.on('answer', callback);
+    }
+};
+
+export const onReceiveIceCandidate = (callback) => {
+    if (socket) {
+        socket.off('ice-candidate');
+        socket.on('ice-candidate', callback);
     }
 };
 
