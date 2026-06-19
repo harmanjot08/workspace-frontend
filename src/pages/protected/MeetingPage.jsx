@@ -187,13 +187,10 @@ export default function MeetingPage() {
     }, [meetingId]);
 
     return (
-        <div className="w-full h-screen bg-slate-900 flex flex-col items-
-            center justify-center">
-            <h1 className="text-white text-2xl font-bold mb-6">
-                Meeting Room
-            </h1>
+        <div className="w-full h-screen bg-gray-950 flex flex-col items-center justify-center gap-8">
+            <h1 className="text-white text-lg font-semibold mb-2">Meeting Room</h1>
 
-            <div className="grid grid-cols-2 gap-4 w-[900px]">
+            <div className="grid grid-cols-2 gap-6 w-[900px] h-[500px]">
 
                 <div className="relative">
                     <video
