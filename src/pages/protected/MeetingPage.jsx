@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     joinMeeting,
     onUserJoined,
@@ -11,9 +13,13 @@ import {
     onReceiveIceCandidate,
 } from '../../services/socketService';
 import { getSocket } from '../../services/socketService';
+import { Mic, MicOff, Video, VideoOff, Phone } from 'lucide-react';
 
 export default function MeetingPage() {
     const { meetingId } = useParams();
+
+    const [isVideoOn, setIsVideoOn] = useState(true);
+    const [isAudioOn, setIsAudioOn] = useState(true);
 
     const localVideoRef = useRef(null);
     const remoteVideoRef = useRef(null);
@@ -27,6 +33,34 @@ export default function MeetingPage() {
                 urls: 'stun:stun.l.google.com:19302',
             },
         ],
+    };
+
+    const toggleVideo = () => {
+        if (!localStreamRef.current) return;
+        const videoTrack = localStreamRef.current.getVideoTracks()[0];
+        if (videoTrack) {
+            videoTrack.enabled = !videoTrack.enabled;
+            setIsVideoOn(videoTrack.enabled);
+        }
+    };
+
+    const toggleAudio = () => {
+        if (!localStreamRef.current) return;
+        const audioTrack = localStreamRef.current.getAudioTracks()[0];
+        if (audioTrack) {
+            audioTrack.enabled = !audioTrack.enabled;
+            setIsAudioOn(audioTrack.enabled);
+        }
+    };
+
+    const endCall = () => {
+        if (localStreamRef.current) {
+            localStreamRef.current.getTracks().forEach(track => track.stop());
+        }
+        if (peerConnectionRef.current) {
+            peerConnectionRef.current.close();
+        }
+        navigate(-1);
     };
 
     useEffect(() => {
@@ -160,13 +194,21 @@ export default function MeetingPage() {
             </h1>
 
             <div className="grid grid-cols-2 gap-4 w-[900px]">
-                <video
-                    ref={localVideoRef}
-                    autoPlay
-                    playsInline
-                    muted
-                    className="w-full h-[400px] bg-black rounded-xl object-cover"
-                />
+
+                <div className="relative">
+                    <video
+                        ref={localVideoRef}
+                        autoPlay
+                        playsInline
+                        muted
+                        className="w-full h-[400px] bg-black rounded-xl object-cover"
+                    />
+                    {!isVideoOn && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-slate-800 rounded-xl">
+                            <span className="text-white text-sm">Camera off</span>
+                        </div>
+                    )}
+                </div>
 
                 <video
                     ref={remoteVideoRef}
@@ -174,6 +216,27 @@ export default function MeetingPage() {
                     playsInline
                     className="w-full h-[400px] bg-black rounded-xl object-cover"
                 />
+            </div>
+
+            {/* Control bar */}
+            <div className="flex gap-4 mt-8">
+                <button
+                    onClick={toggleAudio}
+                    className={`w-12 h-12 rounded-full flex items-center justify-center ${isAudioOn ? 'bg-slate-700 hover:bg-slate-600' : 'bg-red-600 hover:bg-red-700'}`}>
+                    {isAudioOn ? <Mic size={24} className="text-white" /> : <MicOff size={24} className="text-white" />}
+                </button>
+
+                <button
+                    onClick={toggleVideo}
+                    className={`w-12 h-12 rounded-full flex items-center justify-center ${isVideoOn ? 'bg-slate-700 hover:bg-slate-600' : 'bg-red-600 hover:bg-red-700'}`}>
+                    {isVideoOn ? <Video size={24} className="text-white" /> : <VideoOff size={24} className="text-white" />}
+                </button>
+
+                <button
+                    onClick={endCall}
+                    className="w-12 h-12 rounded-full flex items-center justify-center bg-red-600 hover:bg-red-700">
+                    <Phone size={24} className="text-white" />
+                </button>
             </div>
         </div>
     );
