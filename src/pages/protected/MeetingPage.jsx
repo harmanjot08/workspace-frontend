@@ -11,15 +11,24 @@ import {
     onReceiveOffer,
     onReceiveAnswer,
     onReceiveIceCandidate,
+    sendMeetingMessage,
+    onReceiveMeetingMessage,
+    offReceiveMeetingMessage,
 } from '../../services/socketService';
 import { getSocket } from '../../services/socketService';
-import { Mic, MicOff, Video, VideoOff, Phone } from 'lucide-react';
+import { Mic, MicOff, Video, VideoOff, Phone, Send, X } from 'lucide-react';
 
 export default function MeetingPage() {
     const { meetingId } = useParams();
 
     const [isVideoOn, setIsVideoOn] = useState(true);
     const [isAudioOn, setIsAudioOn] = useState(true);
+    const [chatMessages, setChatMessages] = useState([]);
+    const [chatInput, setChatInput] = useState('');
+    const [showChat, setShowChat] = useState(true);
+
+    const navigate = useNavigate();
+    const currentUser = JSON.parse(localStorage.getItem('user'));
 
     const localVideoRef = useRef(null);
     const remoteVideoRef = useRef(null);
@@ -60,6 +69,7 @@ export default function MeetingPage() {
         if (peerConnectionRef.current) {
             peerConnectionRef.current.close();
         }
+        offReceiveMeetingMessage();
         navigate(-1);
     };
 
@@ -178,63 +188,131 @@ export default function MeetingPage() {
             }
         });
 
+        onReceiveMeetingMessage((data) => {
+            setChatMessages(prev => [...prev, data]);
+        });
+
         return () => {
             if (localStreamRef.current) {
-                localStreamRef.current.getTracks().forEach(track =>
-                    track.stop());
+                localStreamRef.current.getTracks().forEach(track => track.stop());
             }
+            if (peerConnectionRef.current) {
+                peerConnectionRef.current.close();
+            }
+            offReceiveMeetingMessage();
         };
     }, [meetingId]);
 
     return (
-        <div className="w-full h-screen bg-gray-950 flex flex-col items-center justify-center gap-8">
-            <h1 className="text-white text-lg font-semibold mb-2">Meeting Room</h1>
+        <div className="w-full h-screen bg-gray-950 flex">
+            {/* LEFT SIDE - Videos + Controls */}
+            <div className="flex-1 flex flex-col items-center justify-center gap-8">
+                <h1 className="text-white text-lg font-semibold">Meeting Room</h1>
 
-            <div className="grid grid-cols-2 gap-6 w-[900px] h-[500px]">
+                <div className="grid grid-cols-2 gap-6 w-[900px] h-[500px]">
+                    {/* Local Video */}
+                    <div className="relative">
+                        <video
+                            ref={localVideoRef}
+                            autoPlay
+                            playsInline
+                            muted
+                            className="w-full h-[400px] bg-black rounded-xl object-cover"
+                        />
+                        {!isVideoOn && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-slate-800 rounded-xl">
+                                <span className="text-white text-sm">Camera off</span>
+                            </div>
+                        )}
+                    </div>
 
-                <div className="relative">
+                    {/* Remote Video */}
                     <video
-                        ref={localVideoRef}
+                        ref={remoteVideoRef}
                         autoPlay
                         playsInline
-                        muted
                         className="w-full h-[400px] bg-black rounded-xl object-cover"
                     />
-                    {!isVideoOn && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-slate-800 rounded-xl">
-                            <span className="text-white text-sm">Camera off</span>
-                        </div>
-                    )}
                 </div>
 
-                <video
-                    ref={remoteVideoRef}
-                    autoPlay
-                    playsInline
-                    className="w-full h-[400px] bg-black rounded-xl object-cover"
-                />
+                {/* Control bar */}
+                <div className="flex gap-4">
+                    <button
+                        onClick={toggleAudio}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center ${isAudioOn ? 'bg-slate-700 hover:bg-slate-600' : 'bg-red-600 hover:bg-red-700'}`}>
+                        {isAudioOn ? <Mic size={24} className="text-white" /> : <MicOff size={24} className="text-white" />}
+                    </button>
+
+                    <button
+                        onClick={toggleVideo}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center ${isVideoOn ? 'bg-slate-700 hover:bg-slate-600' : 'bg-red-600 hover:bg-red-700'}`}>
+                        {isVideoOn ? <Video size={24} className="text-white" /> : <VideoOff size={24} className="text-white" />}
+                    </button>
+
+                    <button
+                        onClick={endCall}
+                        className="w-12 h-12 rounded-full flex items-center justify-center bg-red-600 hover:bg-red-700">
+                        <Phone size={24} className="text-white" />
+                    </button>
+                </div>
             </div>
 
-            {/* Control bar */}
-            <div className="flex gap-4 mt-8">
-                <button
-                    onClick={toggleAudio}
-                    className={`w-12 h-12 rounded-full flex items-center justify-center ${isAudioOn ? 'bg-slate-700 hover:bg-slate-600' : 'bg-red-600 hover:bg-red-700'}`}>
-                    {isAudioOn ? <Mic size={24} className="text-white" /> : <MicOff size={24} className="text-white" />}
-                </button>
+            {/* RIGHT SIDE - Chat Panel */}
+            {showChat && (
+                <div className="w-80 bg-gray-900 border-l border-gray-700 flex flex-col">
+                    {/* Header */}
+                    <div className="p-4 border-b border-gray-700 flex justify-between items-center">
+                        <h2 className="text-white font-semibold">Chat</h2>
+                        <button
+                            onClick={() => setShowChat(false)}
+                            className="text-gray-400 hover:text-white">
+                            <X size={20} />
+                        </button>
+                    </div>
 
-                <button
-                    onClick={toggleVideo}
-                    className={`w-12 h-12 rounded-full flex items-center justify-center ${isVideoOn ? 'bg-slate-700 hover:bg-slate-600' : 'bg-red-600 hover:bg-red-700'}`}>
-                    {isVideoOn ? <Video size={24} className="text-white" /> : <VideoOff size={24} className="text-white" />}
-                </button>
+                    {/* Messages */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                        {chatMessages.map((msg) => (
+                            <div key={msg.id} className="text-sm">
+                                <p className="text-gray-400 text-xs">{msg.userName}</p>
+                                <p className="text-white break-words">{msg.message}</p>
+                            </div>
+                        ))}
+                    </div>
 
-                <button
-                    onClick={endCall}
-                    className="w-12 h-12 rounded-full flex items-center justify-center bg-red-600 hover:bg-red-700">
-                    <Phone size={24} className="text-white" />
-                </button>
-            </div>
+                    {/* Input */}
+                    <div className="p-4 border-t border-gray-700">
+                        <form
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                if (chatInput.trim()) {
+                                    sendMeetingMessage({
+                                        meetingId,
+                                        message: chatInput,
+                                        userName: currentUser?.name || 'Anonymous',
+                                        userId: currentUser?.id,
+                                    });
+                                    setChatInput('');
+                                }
+                            }}
+                            className="flex gap-2">
+                            <input
+                                type="text"
+                                value={chatInput}
+                                onChange={(e) => setChatInput(e.target.value)}
+                                placeholder="Type a message..."
+                                className="flex-1 bg-gray-800 text-white px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            />
+                            <button
+                                type="submit"
+                                className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded">
+                                <Send size={18} />
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
+
 }

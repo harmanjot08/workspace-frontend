@@ -91,6 +91,21 @@ export const onReceiveIceCandidate = (callback) => {
     }
 };
 
+export const sendMeetingMessage = (data) => {
+    if (socket) socket.emit('send-meeting-message', data);
+};
+
+export const onReceiveMeetingMessage = (callback) => {
+    if (socket) {
+        socket.off('receive-meeting-message');
+        socket.on('receive-meeting-message', callback);
+    }
+};
+
+export const offReceiveMeetingMessage = () => {
+    if (socket) socket.off('receive-meeting-message');
+};
+
 export const startTyping = (data) => {
     if (socket) socket.emit('typing', data);
 };
