@@ -16,7 +16,7 @@ import {
     offReceiveMeetingMessage,
 } from '../../services/socketService';
 import { getSocket } from '../../services/socketService';
-import { Mic, MicOff, Video, VideoOff, Phone, Send, X } from 'lucide-react';
+import { Mic, MicOff, Video, VideoOff, Phone, Send, X, MessageCircle } from 'lucide-react';
 
 export default function MeetingPage() {
     const { meetingId } = useParams();
@@ -71,6 +71,10 @@ export default function MeetingPage() {
         }
         offReceiveMeetingMessage();
         navigate(-1);
+    };
+
+    const toggleChat = () => {
+        setShowChat(!showChat);
     };
 
     useEffect(() => {
@@ -247,6 +251,12 @@ export default function MeetingPage() {
                         onClick={toggleVideo}
                         className={`w-12 h-12 rounded-full flex items-center justify-center ${isVideoOn ? 'bg-slate-700 hover:bg-slate-600' : 'bg-red-600 hover:bg-red-700'}`}>
                         {isVideoOn ? <Video size={24} className="text-white" /> : <VideoOff size={24} className="text-white" />}
+                    </button>
+
+                    <button
+                        onClick={toggleChat}
+                        className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-700 hover:bg-slate-600">
+                        <MessageCircle size={24} className="text-white" />
                     </button>
 
                     <button
