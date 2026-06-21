@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     joinMeeting,
     onUserJoined,
+    onExistingParticipants, 
     sendOffer,
     sendAnswer,
     sendIceCandidate,
