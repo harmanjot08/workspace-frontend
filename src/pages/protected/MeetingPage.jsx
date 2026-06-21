@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     joinMeeting,
     onUserJoined,
-    onExistingParticipants, 
+    onExistingParticipants,
     sendOffer,
     sendAnswer,
     sendIceCandidate,
@@ -196,7 +196,7 @@ export default function MeetingPage() {
             console.log("Answer received from:", fromId);
             try {
                 if (peerConnectionsRef.current[fromId]) {
-                    await peerConnectionRef.current[fromId].setRemoteDescription(
+                    await peerConnectionsRef.current[fromId].setRemoteDescription(
                         new RTCSessionDescription(answer)
                     );
                 }
