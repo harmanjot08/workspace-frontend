@@ -41,14 +41,17 @@ export const joinMeeting = (meetingId) => {
 };
 
 export const sendOffer = (data) => {
+    // data = { meetingId, offer, targetId }
     if (socket) socket.emit('offer', data);
 };
 
 export const sendAnswer = (data) => {
+    // data = { meetingId, answer, targetId }
     if (socket) socket.emit('answer', data);
 };
 
 export const sendIceCandidate = (data) => {
+    // data = { meetingId, candidate, targetId }
     if (socket) socket.emit('ice-candidate', data);
 };
 
@@ -70,24 +73,40 @@ export const onUserJoined = (callback) => {
     }
 };
 
+export const onExistingParticipants = (callback) => {
+    if (socket) {
+        socket.off('existing-participants');
+        socket.on('existing-participants', callback);
+    }
+};
+
 export const onReceiveOffer = (callback) => {
     if (socket) {
         socket.off('offer');
-        socket.on('offer', callback);
+        socket.on('offer', (data) => {
+            // data = { offer, fromId }
+            callback(data);
+        });
     }
 };
 
 export const onReceiveAnswer = (callback) => {
     if (socket) {
         socket.off('answer');
-        socket.on('answer', callback);
+        socket.on('answer', (data) => {
+            // data = { answer, fromId }
+            callback(data);
+        });
     }
 };
 
 export const onReceiveIceCandidate = (callback) => {
     if (socket) {
         socket.off('ice-candidate');
-        socket.on('ice-candidate', callback);
+        socket.on('ice-candidate', (data) => {
+            // data = { candidate, fromId }
+            callback(data);
+        });
     }
 };
 

@@ -20,21 +20,21 @@ import { Mic, MicOff, Video, VideoOff, Phone, Send, X, MessageCircle } from 'luc
 
 export default function MeetingPage() {
     const { meetingId } = useParams();
+    const navigate = useNavigate();
+    const token = localStorage.getItem('accessToken');
+    const currentUser = JSON.parse(localStorage.getItem('user'));
 
     const [isVideoOn, setIsVideoOn] = useState(true);
     const [isAudioOn, setIsAudioOn] = useState(true);
     const [chatMessages, setChatMessages] = useState([]);
     const [chatInput, setChatInput] = useState('');
     const [showChat, setShowChat] = useState(true);
-
-    const navigate = useNavigate();
-    const currentUser = JSON.parse(localStorage.getItem('user'));
+    const [remoteStreams, setRemoteStreams] = useState({});
+    const [participants, setParticipants] = useState([]);
 
     const localVideoRef = useRef(null);
-    const remoteVideoRef = useRef(null);
-
     const localStreamRef = useRef(null);
-    const peerConnectionRef = useRef(null);
+    const peerConnectionsRef = useRef({}); // Multiple peer connections: { socketId: peerConnection }
 
     const servers = {
         iceServers: [
@@ -66,15 +66,55 @@ export default function MeetingPage() {
         if (localStreamRef.current) {
             localStreamRef.current.getTracks().forEach(track => track.stop());
         }
-        if (peerConnectionRef.current) {
-            peerConnectionRef.current.close();
-        }
+        // Close all peer connections
+        Object.values(peerConnectionsRef.current).forEach(pc => pc.close());
         offReceiveMeetingMessage();
         navigate(-1);
     };
 
     const toggleChat = () => {
         setShowChat(!showChat);
+    };
+
+    // Create peer connection for a specific target user
+    const createPeerConnection = (targetId) => {
+        const peerConnection = new RTCPeerConnection(servers);
+
+        peerConnection.ontrack = (event) => {
+            console.log("Remote stream received from:", targetId);
+            setRemoteStreams(prev => ({
+                ...prev,
+                [targetId]: event.streams[0]
+            }));
+        };
+
+        peerConnection.onicecandidate = (event) => {
+            if (event.candidate) {
+                sendIceCandidate({
+                    meetingId,
+                    candidate: event.candidate,
+                    targetId: targetId,
+                });
+            }
+        };
+
+        peerConnection.onconnectionstatechange = () => {
+            console.log("Connection state with", targetId, ":", peerConnection.connectionState);
+        };
+
+        peerConnection.oniceconnectionstatechange = () => {
+            console.log("ICE connection state with", targetId, ":", peerConnection.iceConnectionState);
+        };
+
+        // Add local tracks
+        if (localStreamRef.current) {
+            localStreamRef.current.getTracks().forEach(track => {
+                peerConnection.addTrack(track, localStreamRef.current);
+            });
+        }
+
+        peerConnectionsRef.current[targetId] = peerConnection;
+        return peerConnection;
     };
 
     useEffect(() => {
@@ -87,7 +127,6 @@ export default function MeetingPage() {
 
         const setupMeeting = async () => {
             try {
-                // Get camera + mic 
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: true,
                     audio: true,
@@ -99,169 +138,179 @@ export default function MeetingPage() {
                     localVideoRef.current.srcObject = stream;
                 }
 
-                // Join meeting room 
                 joinMeeting(meetingId);
-
                 console.log('Joined meeting:', meetingId);
             } catch (error) {
                 console.error('Error accessing media devices:', error);
             }
         };
 
+        // Setup meeting first
         setupMeeting();
 
-        const createPeerConnection = () => {
-            const peerConnection = new RTCPeerConnection(servers);
-
-            peerConnection.ontrack = (event) => {
-                console.log("Remote stream received");
-
-                if (remoteVideoRef.current) {
-                    remoteVideoRef.current.srcObject = event.streams[0];
-                }
-            };
-
-            peerConnection.onicecandidate = (event) => {
-                if (event.candidate) {
-                    sendIceCandidate({
-                        meetingId,
-                        candidate: event.candidate,
-                    });
-                }
-            };
-
-            peerConnection.onconnectionstatechange = () => {
-                console.log("Connection state:", peerConnection.connectionState);
-            };
-
-            peerConnection.oniceconnectionstatechange = () => {
-                console.log("ICE connection state:", peerConnection.iceConnectionState);
-            };
-
-            localStreamRef.current.getTracks().forEach(track => {
-                peerConnection.addTrack(track, localStreamRef.current);
-            });
-
-            peerConnectionRef.current = peerConnection;
-
-            return peerConnection;
-        };
-
-        onUserJoined(async () => {
-            console.log("Another user joined");
+        // Socket listener for user joined
+        onUserJoined(async ({ socketId }) => {
+            console.log("User joined:", socketId);
             try {
-                const peerConnection = createPeerConnection();
+                setParticipants(prev => [...prev, { socketId, userName: 'User' }]);
+
+                const peerConnection = createPeerConnection(socketId);
                 const offer = await peerConnection.createOffer();
                 await peerConnection.setLocalDescription(offer);
-                sendOffer({ meetingId, offer });
+                sendOffer({ meetingId, offer, targetId: socketId });
             } catch (err) {
                 console.error("Offer creation failed:", err);
             }
         });
 
-        onReceiveOffer(async ({ offer }) => {
-            console.log("Offer received");
+        // Socket listener for existing participants when joining
+        onExistingParticipants(({ participants }) => {
+            console.log("Existing participants:", participants);
+            participants.forEach(participant => {
+                setParticipants(prev => {
+                    if (!prev.find(p => p.socketId === participant.socketId)) {
+                        return [...prev, participant];
+                    }
+                    return prev;
+                });
+            });
+        });
+
+        // Socket listener for receiving offer
+        onReceiveOffer(async ({ offer, fromId }) => {
+            console.log("Offer received from:", fromId);
             try {
-                const peerConnection = createPeerConnection();
+                const peerConnection = createPeerConnection(fromId);
                 await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
                 const answer = await peerConnection.createAnswer();
                 await peerConnection.setLocalDescription(answer);
-                sendAnswer({ meetingId, answer });
+                sendAnswer({ meetingId, answer, targetId: fromId });
             } catch (err) {
                 console.error("Answer creation failed:", err);
             }
         });
 
-        onReceiveAnswer(async ({ answer }) => {
-            console.log("Answer received");
+        // Socket listener for receiving answer
+        onReceiveAnswer(async ({ answer, fromId }) => {
+            console.log("Answer received from:", fromId);
             try {
-                await peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(answer));
+                if (peerConnectionsRef.current[fromId]) {
+                    await peerConnectionRef.current[fromId].setRemoteDescription(
+                        new RTCSessionDescription(answer)
+                    );
+                }
             } catch (err) {
                 console.error("Setting remote answer failed:", err);
             }
         });
 
-        onReceiveIceCandidate(async ({ candidate }) => {
-            console.log("ICE candidate received");
+        // Socket listener for ICE candidates
+        onReceiveIceCandidate(async ({ candidate, fromId }) => {
+            console.log("ICE candidate received from:", fromId);
             try {
-                if (peerConnectionRef.current) {
-                    await peerConnectionRef.current.addIceCandidate(new RTCIceCandidate(candidate));
+                if (peerConnectionsRef.current[fromId]) {
+                    await peerConnectionsRef.current[fromId].addIceCandidate(
+                        new RTCIceCandidate(candidate)
+                    );
                 }
             } catch (err) {
                 console.error("Adding ICE candidate failed:", err);
             }
         });
 
+        // Socket listener for chat messages
         onReceiveMeetingMessage((data) => {
             setChatMessages(prev => [...prev, data]);
         });
 
+        // Cleanup
         return () => {
             if (localStreamRef.current) {
                 localStreamRef.current.getTracks().forEach(track => track.stop());
             }
-            if (peerConnectionRef.current) {
-                peerConnectionRef.current.close();
-            }
+            Object.values(peerConnectionsRef.current).forEach(pc => pc.close());
             offReceiveMeetingMessage();
         };
-    }, [meetingId]);
+    }, [meetingId, token, navigate]);
+
+    // Calculate grid columns based on participants count
+    const totalParticipants = Object.keys(remoteStreams).length + 1; // +1 for local
+    const gridCols = Math.ceil(Math.sqrt(totalParticipants));
 
     return (
         <div className="w-full h-screen bg-gray-950 flex">
             {/* LEFT SIDE - Videos + Controls */}
-            <div className="flex-1 flex flex-col items-center justify-center gap-8">
-                <h1 className="text-white text-lg font-semibold">Meeting Room</h1>
+            <div className="flex-1 flex flex-col items-center justify-center gap-8 p-6">
+                <h1 className="text-white text-lg font-semibold">Meeting Room ({totalParticipants} participants)</h1>
 
-                <div className="grid grid-cols-2 gap-6 w-[900px] h-[500px]">
+                {/* Dynamic Grid */}
+                <div
+                    className="gap-4 w-full"
+                    style={{
+                        display: 'grid',
+                        gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
+                        maxWidth: '1200px',
+                    }}>
                     {/* Local Video */}
-                    <div className="relative">
+                    <div className="relative rounded-xl overflow-hidden">
                         <video
                             ref={localVideoRef}
                             autoPlay
                             playsInline
                             muted
-                            className="w-full h-[400px] bg-black rounded-xl object-cover"
+                            className="w-full h-64 bg-black object-cover"
                         />
                         {!isVideoOn && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-slate-800 rounded-xl">
-                                <span className="text-white text-sm">Camera off</span>
+                            <div className="absolute inset-0 flex items-center justify-center bg-slate-800">
+                                <span className="text-white text-sm">You (Camera off)</span>
                             </div>
                         )}
+                        <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+                            You
+                        </div>
                     </div>
 
-                    {/* Remote Video */}
-                    <video
-                        ref={remoteVideoRef}
-                        autoPlay
-                        playsInline
-                        className="w-full h-[400px] bg-black rounded-xl object-cover"
-                    />
+                    {/* Remote Videos */}
+                    {Object.entries(remoteStreams).map(([socketId, stream]) => (
+                        <div key={socketId} className="relative rounded-xl overflow-hidden">
+                            <video
+                                autoPlay
+                                playsInline
+                                className="w-full h-64 bg-black object-cover"
+                                ref={(el) => {
+                                    if (el && stream) el.srcObject = stream;
+                                }}
+                            />
+                            <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+                                User
+                            </div>
+                        </div>
+                    ))}
                 </div>
 
                 {/* Control bar */}
                 <div className="flex gap-4">
                     <button
                         onClick={toggleAudio}
-                        className={`w-12 h-12 rounded-full flex items-center justify-center ${isAudioOn ? 'bg-slate-700 hover:bg-slate-600' : 'bg-red-600 hover:bg-red-700'}`}>
+                        className={`w-12 h-12 rounded-full flex items-center justify-center transition ${isAudioOn ? 'bg-slate-700 hover:bg-slate-600' : 'bg-red-600 hover:bg-red-700'}`}>
                         {isAudioOn ? <Mic size={24} className="text-white" /> : <MicOff size={24} className="text-white" />}
                     </button>
 
                     <button
                         onClick={toggleVideo}
-                        className={`w-12 h-12 rounded-full flex items-center justify-center ${isVideoOn ? 'bg-slate-700 hover:bg-slate-600' : 'bg-red-600 hover:bg-red-700'}`}>
+                        className={`w-12 h-12 rounded-full flex items-center justify-center transition ${isVideoOn ? 'bg-slate-700 hover:bg-slate-600' : 'bg-red-600 hover:bg-red-700'}`}>
                         {isVideoOn ? <Video size={24} className="text-white" /> : <VideoOff size={24} className="text-white" />}
                     </button>
 
                     <button
                         onClick={toggleChat}
-                        className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-700 hover:bg-slate-600">
+                        className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-700 hover:bg-slate-600 transition">
                         <MessageCircle size={24} className="text-white" />
                     </button>
 
                     <button
                         onClick={endCall}
-                        className="w-12 h-12 rounded-full flex items-center justify-center bg-red-600 hover:bg-red-700">
+                        className="w-12 h-12 rounded-full flex items-center justify-center bg-red-600 hover:bg-red-700 transition">
                         <Phone size={24} className="text-white" />
                     </button>
                 </div>
@@ -315,7 +364,7 @@ export default function MeetingPage() {
                             />
                             <button
                                 type="submit"
-                                className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded">
+                                className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded transition">
                                 <Send size={18} />
                             </button>
                         </form>
@@ -324,5 +373,4 @@ export default function MeetingPage() {
             )}
         </div>
     );
-
 }
