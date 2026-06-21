@@ -150,10 +150,10 @@ export default function MeetingPage() {
         setupMeeting();
 
         // Socket listener for user joined
-        onUserJoined(async ({ socketId }) => {
-            console.log("User joined:", socketId);
+        onUserJoined(async ({ socketId, userName }) => {
+            console.log("User joined:", socketId, userName);
             try {
-                setParticipants(prev => [...prev, { socketId, userName: 'User' }]);
+                setParticipants(prev => [...prev, { socketId, userName }]);
 
                 const peerConnection = createPeerConnection(socketId);
                 const offer = await peerConnection.createOffer();
@@ -241,12 +241,12 @@ export default function MeetingPage() {
     return (
         <div className="w-full h-screen bg-gray-950 flex">
             {/* LEFT SIDE - Videos + Controls */}
-            <div className="flex-1 flex flex-col items-center justify-center gap-8 p-6">
+            <div className="flex-1 flex flex-col items-center justify-between gap-4 p-6">
                 <h1 className="text-white text-lg font-semibold">Meeting Room ({totalParticipants} participants)</h1>
 
-                {/* Dynamic Grid */}
+                {/* Dynamic Grid - smaller height */}
                 <div
-                    className="gap-4 w-full"
+                    className="gap-4 w-full flex-1 overflow-hidden"
                     style={{
                         display: 'grid',
                         gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
@@ -267,29 +267,35 @@ export default function MeetingPage() {
                             </div>
                         )}
                         <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
-                            You
+                            {currentUser?.name} (You)  {/* ← Show name with (You) */}
                         </div>
                     </div>
 
                     {/* Remote Videos */}
-                    {Object.entries(remoteStreams).map(([socketId, stream]) => (
-                        <div key={socketId} className="relative rounded-xl overflow-hidden">
-                            <video
-                                autoPlay
-                                playsInline
-                                className="w-full h-64 bg-black object-cover"
-                                ref={(el) => {
-                                    if (el && stream) el.srcObject = stream;
-                                }}
-                            />
-                            <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
-                                User
+                    {/* Remote Videos */}
+                    {Object.entries(remoteStreams).map(([socketId, stream]) => {
+                        const participant = participants.find(p => p.socketId === socketId);
+                        const userName = participant?.userName || 'User';
+
+                        return (
+                            <div key={socketId} className="relative rounded-xl overflow-hidden">
+                                <video
+                                    autoPlay
+                                    playsInline
+                                    className="w-full h-64 bg-black object-cover"
+                                    ref={(el) => {
+                                        if (el && stream) el.srcObject = stream;
+                                    }}
+                                />
+                                <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+                                    {userName}  {/* ← Display actual name */}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
 
-                {/* Control bar */}
+                {/* Control bar - always visible */}
                 <div className="flex gap-4">
                     <button
                         onClick={toggleAudio}
