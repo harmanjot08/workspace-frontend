@@ -126,6 +126,11 @@ export default function MeetingPage() {
             });
         }
 
+        getSocket()?.on('meeting-expired', ({ message }) => {
+            alert(message);
+            navigate(-1);
+        });
+
         const setupMeeting = async () => {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
