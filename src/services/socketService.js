@@ -159,6 +159,28 @@ export const onUserStatus = (callback) => {
     if (socket) socket.on('user-status', callback);
 };
 
+export const sendRaiseHand = (data) => {
+    if (socket) socket.emit('raise-hand', data);
+};
+
+export const onRaiseHand = (callback) => {
+    if (socket) {
+        socket.off('raise-hand');
+        socket.on('raise-hand', callback);
+    }
+};
+
+export const sendLowerHand = (data) => {
+    if (socket) socket.emit('lower-hand', data);
+};
+
+export const onLowerHand = (callback) => {
+    if (socket) {
+        socket.off('lower-hand');
+        socket.on('lower-hand', callback);
+    }
+};
+
 export const disconnectSocket = () => {
     if (socket) {
         socket.disconnect();

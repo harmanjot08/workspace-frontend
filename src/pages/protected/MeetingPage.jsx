@@ -17,7 +17,7 @@ import {
     offReceiveMeetingMessage,
 } from '../../services/socketService';
 import { getSocket } from '../../services/socketService';
-import { Mic, MicOff, Video, VideoOff, Phone, Send, X, MessageCircle } from 'lucide-react';
+import { Mic, MicOff, Video, VideoOff, Phone, Send, X, MessageCircle, Hand } from 'lucide-react';
 
 export default function MeetingPage() {
     const { meetingId } = useParams();
@@ -28,6 +28,8 @@ export default function MeetingPage() {
     const [isVideoOn, setIsVideoOn] = useState(true);
     const [isAudioOn, setIsAudioOn] = useState(true);
     const [chatMessages, setChatMessages] = useState([]);
+    const [isHandRaised, setIsHandRaised] = useState(false);
+    const [raisedHands, setRaisedHands] = useState([]);
     const [chatInput, setChatInput] = useState('');
     const [showChat, setShowChat] = useState(true);
     const [remoteStreams, setRemoteStreams] = useState({});
@@ -75,6 +77,28 @@ export default function MeetingPage() {
 
     const toggleChat = () => {
         setShowChat(!showChat);
+    };
+
+    const toggleRaiseHand = () => {
+        const newState = !isHandRaised;
+        setIsHandRaised(newState);
+
+        if (newState) {
+            // Hand raised
+            sendRaiseHand({
+                meetingId,
+                socketId: getSocket()?.id,
+                userName: currentUser?.name || 'User',
+                userId: currentUser?.id,
+            });
+        } else {
+            // Hand lowered
+            sendLowerHand({
+                meetingId,
+                socketId: getSocket()?.id,
+                userId: currentUser?.id,
+            });
+        }
     };
 
     // Create peer connection for a specific target user
@@ -229,6 +253,23 @@ export default function MeetingPage() {
             setChatMessages(prev => [...prev, data]);
         });
 
+        // Socket listener for raise hand
+        onRaiseHand(({ socketId, userName, userId }) => {
+            console.log("Hand raised by:", userName);
+            setRaisedHands(prev => {
+                if (!prev.find(h => h.userId === userId)) {
+                    return [...prev, { socketId, userName, userId }];
+                }
+                return prev;
+            });
+        });
+
+        // Socket listener for lower hand
+        onLowerHand(({ userId }) => {
+            console.log("Hand lowered by:", userId);
+            setRaisedHands(prev => prev.filter(h => h.userId !== userId));
+        });
+
         // Cleanup
         return () => {
             if (localStreamRef.current) {
@@ -300,6 +341,37 @@ export default function MeetingPage() {
                     })}
                 </div>
 
+                {/* Raised Hands Display */}
+                {raisedHands.length > 0 && (
+                    <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Hand size={18} className="text-yellow-600" />
+                            <p className="text-sm font-semibold text-yellow-800">
+                                Hands Raised ({raisedHands.length})
+                            </p>
+                        </div>
+                        <div className="space-y-1">
+                            {raisedHands.map(hand => (
+                                <div key={hand.userId} className="text-sm text-yellow-700 flex justify-between items-center">
+                                    <span>{hand.userName}</span>
+                                    <button
+                                        onClick={() => {
+                                            if (currentUser?.role === 'manager') {
+                                                sendLowerHand({
+                                                    meetingId,
+                                                    userId: hand.userId,
+                                                });
+                                            }
+                                        }}
+                                        className="text-xs bg-yellow-200 hover:bg-yellow-300 px-2 py-1 rounded">
+                                        Lower
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {/* Control bar - always visible */}
                 <div className="flex gap-4">
                     <button
@@ -312,6 +384,16 @@ export default function MeetingPage() {
                         onClick={toggleVideo}
                         className={`w-12 h-12 rounded-full flex items-center justify-center transition ${isVideoOn ? 'bg-slate-700 hover:bg-slate-600' : 'bg-red-600 hover:bg-red-700'}`}>
                         {isVideoOn ? <Video size={24} className="text-white" /> : <VideoOff size={24} className="text-white" />}
+                    </button>
+
+                    <button
+                        onClick={toggleRaiseHand}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center transition ${isHandRaised
+                            ? 'bg-yellow-500 hover:bg-yellow-600'
+                            : 'bg-slate-700 hover:bg-slate-600'
+                            }`}
+                        title={isHandRaised ? 'Lower Hand' : 'Raise Hand'}>
+                        <Hand size={24} className="text-white" />
                     </button>
 
                     <button
