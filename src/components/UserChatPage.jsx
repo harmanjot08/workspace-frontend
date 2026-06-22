@@ -335,7 +335,25 @@ export default function UserChatPage() {
             {selectedChat ? (
                 <div className="flex-1 flex flex-col bg-white">
                     <div className="p-4 border-b border-slate-200 flex justify-between items-center">
-                        <h2 className="text-lg font-bold text-slate-900">{getChatName(selectedChat)}</h2>
+                        {/* Avatar + Name */}
+                        <div className="flex items-center gap-3">
+                            {/* Avatar with Initials */}
+                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-sm font-bold text-blue-700">
+                                {getChatName(selectedChat)
+                                    .split(' ')
+                                    .map(word => word[0])
+                                    .join('')
+                                    .toUpperCase()}
+                            </div>
+                            {/* Name */}
+                            <div>
+                                <h2 className="text-lg font-bold text-slate-900">{getChatName(selectedChat)}</h2>
+                                <p className="text-xs text-slate-500">
+                                    {selectedChat?.isGroup ? 'Group' : 'Direct Message'}
+                                </p>
+                            </div>
+                        </div>
+
                         <button
                             onClick={() => {
                                 setSelectedChat(null);
