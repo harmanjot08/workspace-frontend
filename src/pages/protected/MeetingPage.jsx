@@ -115,19 +115,16 @@ export default function MeetingPage() {
     const toggleScreenShare = async () => {
         try {
             if (isScreenSharing) {
-                // Stop screen sharing
                 screenStream?.getTracks().forEach(track => track.stop());
                 setScreenStream(null);
                 setIsScreenSharing(false);
 
-                // Notify others
                 sendScreenShareStop({
                     meetingId,
                     socketId: getSocket()?.id,
                     userId: currentUser?.id,
                 });
             } else {
-                // Start screen sharing
                 const stream = await navigator.mediaDevices.getDisplayMedia({
                     video: { cursor: 'always' },
                     audio: false,
@@ -136,7 +133,17 @@ export default function MeetingPage() {
                 setScreenStream(stream);
                 setIsScreenSharing(true);
 
-                // Notify others
+                // ← ADD YE: Store in screenShares locally
+                setScreenShares(prev => ({
+                    ...prev,
+                    [currentUser?.id]: {
+                        socketId: getSocket()?.id,
+                        userName: currentUser?.name,
+                        userId: currentUser?.id,
+                        stream: stream
+                    }
+                }));
+
                 sendScreenShare({
                     meetingId,
                     socketId: getSocket()?.id,
@@ -144,10 +151,14 @@ export default function MeetingPage() {
                     userId: currentUser?.id,
                 });
 
-                // Stop sharing when user stops from browser prompt
                 stream.getVideoTracks()[0].onended = () => {
                     setScreenStream(null);
                     setIsScreenSharing(false);
+                    setScreenShares(prev => {
+                        const updated = { ...prev };
+                        delete updated[currentUser?.id];
+                        return updated;
+                    });
                     sendScreenShareStop({
                         meetingId,
                         socketId: getSocket()?.id,
@@ -368,51 +379,40 @@ export default function MeetingPage() {
                 <h1 className="text-white text-lg font-semibold">Meeting Room ({totalParticipants} participants)</h1>
 
                 {/* Dynamic Grid - smaller height */}
-                <div
-                    className="gap-4 w-full flex-1 overflow-hidden"
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
-                        maxWidth: '1200px',
-                    }}>
+                <div className="gap-4 w-full flex-1 overflow-hidden" style={{ display: 'grid', gridTemplateColumns: `repeat(${gridCols}, 1fr)`, maxWidth: '1200px' }}>
+                    {/* Screen Share */}
+                    {Object.entries(screenShares).length > 0 && Object.entries(screenShares).map(([userId, share]) => {
+                        const screenRef = useRef(null);
+                        return (
+                            <div key={`screen-${userId}`} className="relative rounded-xl overflow-hidden bg-black col-span-2">
+                                <video
+                                    autoPlay
+                                    playsInline
+                                    ref={screenRef}
+                                    className="w-full h-64 bg-black object-contain"
+                                />
+                                <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
+                                    <Monitor size={14} className="text-white" /> {share.userName} - Screen
+                                </div>
+                            </div>
+                        );
+                    })}
+
                     {/* Local Video */}
                     <div className="relative rounded-xl overflow-hidden">
-                        <video
-                            ref={localVideoRef}
-                            autoPlay
-                            playsInline
-                            muted
-                            className="w-full h-64 bg-black object-cover"
-                        />
-                        {!isVideoOn && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-slate-800">
-                                <span className="text-white text-sm">You (Camera off)</span>
-                            </div>
-                        )}
-                        <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
-                            {currentUser?.name} (You)  {/* ← Show name with (You) */}
-                        </div>
+                        <video ref={localVideoRef} autoPlay playsInline muted className="w-full h-64 bg-black object-cover" />
+                        {!isVideoOn && <div className="absolute inset-0 flex items-center justify-center bg-slate-800"><span className="text-white text-sm">You (Camera off)</span></div>}
+                        <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">{currentUser?.name} (You)</div>
                     </div>
 
-                    {/* Remote Videos */}
                     {/* Remote Videos */}
                     {Object.entries(remoteStreams).map(([socketId, stream]) => {
                         const participant = participants.find(p => p.socketId === socketId);
                         const userName = participant?.userName || 'User';
-
                         return (
                             <div key={socketId} className="relative rounded-xl overflow-hidden">
-                                <video
-                                    autoPlay
-                                    playsInline
-                                    className="w-full h-64 bg-black object-cover"
-                                    ref={(el) => {
-                                        if (el && stream) el.srcObject = stream;
-                                    }}
-                                />
-                                <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
-                                    {userName}  {/* ← Display actual name */}
-                                </div>
+                                <video autoPlay playsInline className="w-full h-64 bg-black object-cover" ref={(el) => { if (el && stream) el.srcObject = stream; }} />
+                                <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">{userName}</div>
                             </div>
                         );
                     })}
