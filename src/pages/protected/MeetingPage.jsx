@@ -378,23 +378,28 @@ export default function MeetingPage() {
             <div className="flex-1 flex flex-col items-center justify-between gap-4 p-6">
                 <h1 className="text-white text-lg font-semibold">Meeting Room ({totalParticipants} participants)</h1>
 
-                {/* Dynamic Grid - smaller height */}
                 <div className="gap-4 w-full flex-1 overflow-hidden" style={{ display: 'grid', gridTemplateColumns: `repeat(${gridCols}, 1fr)`, maxWidth: '1200px' }}>
                     {/* Screen Share */}
-                    {/* Screen Share */}
-                    {Object.entries(screenShares).length > 0 && Object.entries(screenShares).map(([userId, share]) => (
-                        <div key={`screen-${userId}`} className="relative rounded-xl overflow-hidden bg-black col-span-2">
-                            <video
-                                autoPlay
-                                playsInline
-                                ref={(el) => { if (el && share.stream) el.srcObject = share.stream; }}
-                                className="w-full h-64 bg-black object-contain"
-                            />
-                            <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
-                                <Monitor size={14} className="text-white" /> {share.userName} - Screen
+                    {Object.keys(screenShares).map(userId => {
+                        const share = screenShares[userId];
+                        return (
+                            <div key={`screen-${userId}`} className="relative rounded-xl overflow-hidden bg-black col-span-2">
+                                <video
+                                    autoPlay
+                                    playsInline
+                                    ref={(el) => {
+                                        if (el && share.stream) {
+                                            el.srcObject = share.stream;
+                                        }
+                                    }}
+                                    className="w-full h-64 bg-black object-contain"
+                                />
+                                <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
+                                    <Monitor size={14} /> {share.userName} - Screen
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
 
                     {/* Local Video */}
                     <div className="relative rounded-xl overflow-hidden">
