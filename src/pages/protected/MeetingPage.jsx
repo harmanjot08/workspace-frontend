@@ -411,177 +411,174 @@ export default function MeetingPage() {
     return (
         <div className="w-full h-screen bg-gray-950 flex">
             {/* LEFT SIDE - Videos + Controls */}
-            <div className="gap-4 w-full flex-1 overflow-hidden" style={{ display: 'grid', gridTemplateColumns: `repeat(${gridCols}, 1fr)`, maxWidth: '1200px' }}>
-                {/* Local Video */}
-                <div className="relative rounded-xl overflow-hidden">
-                    <video ref={localVideoRef} autoPlay playsInline muted className="w-full h-64 bg-black object-cover" />
-                    {!isVideoOn && <div className="absolute inset-0 flex items-center justify-center bg-slate-800"><span className="text-white text-sm">You (Camera off)</span></div>}
-                    <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
-                        {isScreenSharing && <Monitor size={14} />}
-                        {currentUser?.name} (You)
-                    </div>
-                </div>
+            <div className="flex-1 flex flex-col items-center justify-between gap-4 p-6">
+                <h1 className="text-white text-lg font-semibold">Meeting Room ({Object.keys(remoteStreams).length + 1} participants)</h1>
 
-                {/* Remote Videos */}
-                {Object.entries(remoteStreams).map(([socketId, stream]) => {
-                    const participant = participants.find(p => p.socketId === socketId);
-                    const userName = participant?.userName || 'User';
-                    const isThisUserSharing = Object.values(screenShares).some(s => s.socketId === socketId);
-
-                    return (
-                        <div key={socketId} className="relative rounded-xl overflow-hidden">
-                            <video autoPlay playsInline className="w-full h-64 bg-black object-cover" ref={(el) => { if (el && stream) el.srcObject = stream; }} />
-                            <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
-                                {isThisUserSharing && <Monitor size={14} />}
-                                {userName}
-                            </div>
+                {/* Video Grid */}
+                <div className="gap-4 w-full flex-1 overflow-hidden" style={{ display: 'grid', gridTemplateColumns: `repeat(${gridCols}, 1fr)`, maxWidth: '1200px' }}>
+                    {/* Local Video */}
+                    <div className="relative rounded-xl overflow-hidden">
+                        <video ref={localVideoRef} autoPlay playsInline muted className="w-full h-64 bg-black object-cover" />
+                        {!isVideoOn && <div className="absolute inset-0 flex items-center justify-center bg-slate-800"><span className="text-white text-sm">You (Camera off)</span></div>}
+                        <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
+                            {isScreenSharing && <Monitor size={14} />}
+                            {currentUser?.name} (You)
                         </div>
-                    );
-                })}
-            </div>
-
-            {/* Raised Hands Display */}
-            {raisedHands.length > 0 && (
-                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
-                    <div className="flex items-center gap-2 mb-2">
-                        <Hand size={18} className="text-yellow-600" />
-                        <p className="text-sm font-semibold text-yellow-800">
-                            Hands Raised ({raisedHands.length})
-                        </p>
                     </div>
-                    <div className="space-y-1">
-                        {raisedHands.map(hand => (
-                            <div key={hand.userId} className="text-sm text-yellow-700 flex justify-between items-center">
-                                <span>{hand.userName}</span>
+
+                    {/* Remote Videos */}
+                    {Object.entries(remoteStreams).map(([socketId, stream]) => {
+                        const participant = participants.find(p => p.socketId === socketId);
+                        const userName = participant?.userName || 'User';
+                        const isThisUserSharing = Object.values(screenShares).some(s => s.socketId === socketId);
+
+                        return (
+                            <div key={socketId} className="relative rounded-xl overflow-hidden">
+                                <video autoPlay playsInline className="w-full h-64 bg-black object-cover" ref={(el) => { if (el && stream) el.srcObject = stream; }} />
+                                <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
+                                    {isThisUserSharing && <Monitor size={14} />}
+                                    {userName}
+                                </div>
                             </div>
-                        ))}
-                    </div>
+                        );
+                    })}
                 </div>
-            )}
 
-            {Object.keys(screenShares).length > 0 && (
-                <div className="bg-green-50 border-l-4 border-green-400 p-4 mb-4">
-                    <div className="flex items-center gap-2 mb-2">
-                        <Monitor size={18} className="text-green-600" />
-                        <p className="text-sm font-semibold text-green-800">
-                            Sharing Screen ({Object.keys(screenShares).length})
-                        </p>
+                {/* Raised Hands Display */}
+                {raisedHands.length > 0 && (
+                    <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Hand size={18} className="text-yellow-600" />
+                            <p className="text-sm font-semibold text-yellow-800">
+                                Hands Raised ({raisedHands.length})
+                            </p>
+                        </div>
+                        <div className="space-y-1">
+                            {raisedHands.map(hand => (
+                                <div key={hand.userId} className="text-sm text-yellow-700 flex justify-between items-center">
+                                    <span>{hand.userName}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                    <div className="space-y-1">
-                        {Object.values(screenShares).map(share => (
-                            <div key={share.userId} className="text-sm text-green-700">
-                                {share.userName} is sharing screen
-                            </div>
-                        ))}
+                )}
+
+                {/* Screen Sharing Display */}
+                {Object.keys(screenShares).length > 0 && (
+                    <div className="bg-green-50 border-l-4 border-green-400 p-4 mb-4">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Monitor size={18} className="text-green-600" />
+                            <p className="text-sm font-semibold text-green-800">
+                                Sharing Screen ({Object.keys(screenShares).length})
+                            </p>
+                        </div>
+                        <div className="space-y-1">
+                            {Object.values(screenShares).map(share => (
+                                <div key={share.userId} className="text-sm text-green-700">
+                                    {share.userName} is sharing screen
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {/* Control bar - always visible */}
-            <div className="flex gap-4">
-                <button
-                    onClick={toggleAudio}
-                    className={`w-12 h-12 rounded-full flex items-center justify-center transition ${isAudioOn ? 'bg-slate-700 hover:bg-slate-600' : 'bg-red-600 hover:bg-red-700'}`}>
-                    {isAudioOn ? <Mic size={24} className="text-white" /> : <MicOff size={24} className="text-white" />}
-                </button>
-
-                <button
-                    onClick={toggleVideo}
-                    className={`w-12 h-12 rounded-full flex items-center justify-center transition ${isVideoOn ? 'bg-slate-700 hover:bg-slate-600' : 'bg-red-600 hover:bg-red-700'}`}>
-                    {isVideoOn ? <Video size={24} className="text-white" /> : <VideoOff size={24} className="text-white" />}
-                </button>
-
-                <button
-                    onClick={toggleScreenShare}
-                    className={`w-12 h-12 rounded-full flex items-center justify-center transition ${isScreenSharing
-                        ? 'bg-green-500 hover:bg-green-600'
-                        : 'bg-slate-700 hover:bg-slate-600'
-                        }`}
-                    title={isScreenSharing ? 'Stop Sharing' : 'Share Screen'}>
-                    <Monitor size={24} className="text-white" />
-                </button>
-
-                <button
-                    onClick={toggleRaiseHand}
-                    className={`w-12 h-12 rounded-full flex items-center justify-center transition ${isHandRaised
-                        ? 'bg-yellow-500 hover:bg-yellow-600'
-                        : 'bg-slate-700 hover:bg-slate-600'
-                        }`}
-                    title={isHandRaised ? 'Lower Hand' : 'Raise Hand'}>
-                    <Hand size={24} className="text-white" />
-                </button>
-
-                <button
-                    onClick={toggleChat}
-                    className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-700 hover:bg-slate-600 transition">
-                    <MessageCircle size={24} className="text-white" />
-                </button>
-
-                <button
-                    onClick={endCall}
-                    className="w-12 h-12 rounded-full flex items-center justify-center bg-red-600 hover:bg-red-700 transition">
-                    <Phone size={24} className="text-white" />
-                </button>
-            </div>
-        </div>
-
-            {/* RIGHT SIDE - Chat Panel */ }
-    {
-        showChat && (
-            <div className="w-80 bg-gray-900 border-l border-gray-700 flex flex-col">
-                {/* Header */}
-                <div className="p-4 border-b border-gray-700 flex justify-between items-center">
-                    <h2 className="text-white font-semibold">Chat</h2>
+                {/* Control Bar */}
+                <div className="flex gap-4">
                     <button
-                        onClick={() => setShowChat(false)}
-                        className="text-gray-400 hover:text-white">
-                        <X size={20} />
+                        onClick={toggleAudio}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center transition ${isAudioOn ? 'bg-slate-700 hover:bg-slate-600' : 'bg-red-600 hover:bg-red-700'}`}>
+                        {isAudioOn ? <Mic size={24} className="text-white" /> : <MicOff size={24} className="text-white" />}
+                    </button>
+
+                    <button
+                        onClick={toggleVideo}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center transition ${isVideoOn ? 'bg-slate-700 hover:bg-slate-600' : 'bg-red-600 hover:bg-red-700'}`}>
+                        {isVideoOn ? <Video size={24} className="text-white" /> : <VideoOff size={24} className="text-white" />}
+                    </button>
+
+                    <button
+                        onClick={toggleScreenShare}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center transition ${isScreenSharing ? 'bg-green-500 hover:bg-green-600' : 'bg-slate-700 hover:bg-slate-600'}`}
+                        title={isScreenSharing ? 'Stop Sharing' : 'Share Screen'}>
+                        <Monitor size={24} className="text-white" />
+                    </button>
+
+                    <button
+                        onClick={toggleRaiseHand}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center transition ${isHandRaised ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-slate-700 hover:bg-slate-600'}`}
+                        title={isHandRaised ? 'Lower Hand' : 'Raise Hand'}>
+                        <Hand size={24} className="text-white" />
+                    </button>
+
+                    <button
+                        onClick={toggleChat}
+                        className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-700 hover:bg-slate-600 transition">
+                        <MessageCircle size={24} className="text-white" />
+                    </button>
+
+                    <button
+                        onClick={endCall}
+                        className="w-12 h-12 rounded-full flex items-center justify-center bg-red-600 hover:bg-red-700 transition">
+                        <Phone size={24} className="text-white" />
                     </button>
                 </div>
-
-                {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                    {chatMessages.map((msg) => (
-                        <div key={msg.id} className="text-sm">
-                            <p className="text-gray-400 text-xs">{msg.userName}</p>
-                            <p className="text-white break-words">{msg.message}</p>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Input */}
-                <div className="p-4 border-t border-gray-700">
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            if (chatInput.trim()) {
-                                sendMeetingMessage({
-                                    meetingId,
-                                    message: chatInput,
-                                    userName: currentUser?.name || 'Anonymous',
-                                    userId: currentUser?.id,
-                                });
-                                setChatInput('');
-                            }
-                        }}
-                        className="flex gap-2">
-                        <input
-                            type="text"
-                            value={chatInput}
-                            onChange={(e) => setChatInput(e.target.value)}
-                            placeholder="Type a message..."
-                            className="flex-1 bg-gray-800 text-white px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        />
-                        <button
-                            type="submit"
-                            className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded transition">
-                            <Send size={18} />
-                        </button>
-                    </form>
-                </div>
             </div>
-        )
-    }
-        </div >
+
+            {/* RIGHT SIDE - Chat Panel */}
+            {showChat && (
+                <div className="w-80 bg-gray-900 border-l border-gray-700 flex flex-col">
+                    {/* Header */}
+                    <div className="p-4 border-b border-gray-700 flex justify-between items-center">
+                        <h2 className="text-white font-semibold">Chat</h2>
+                        <button
+                            onClick={() => setShowChat(false)}
+                            className="text-gray-400 hover:text-white">
+                            <X size={20} />
+                        </button>
+                    </div>
+
+                    {/* Messages */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                        {chatMessages.map((msg) => (
+                            <div key={msg.id} className="text-sm">
+                                <p className="text-gray-400 text-xs">{msg.userName}</p>
+                                <p className="text-white break-words">{msg.message}</p>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Input */}
+                    <div className="p-4 border-t border-gray-700">
+                        <form
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                if (chatInput.trim()) {
+                                    sendMeetingMessage({
+                                        meetingId,
+                                        message: chatInput,
+                                        userName: currentUser?.name || 'Anonymous',
+                                        userId: currentUser?.id,
+                                    });
+                                    setChatInput('');
+                                }
+                            }}
+                            className="flex gap-2">
+                            <input
+                                type="text"
+                                value={chatInput}
+                                onChange={(e) => setChatInput(e.target.value)}
+                                placeholder="Type a message..."
+                                className="flex-1 bg-gray-800 text-white px-3 py-2 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            />
+                            <button
+                                type="submit"
+                                className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded transition">
+                                <Send size={18} />
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 }
