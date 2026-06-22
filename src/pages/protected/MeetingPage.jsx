@@ -15,6 +15,10 @@ import {
     sendMeetingMessage,
     onReceiveMeetingMessage,
     offReceiveMeetingMessage,
+    sendRaiseHand,
+    onRaiseHand,
+    sendLowerHand,
+    onLowerHand,
 } from '../../services/socketService';
 import { getSocket } from '../../services/socketService';
 import { Mic, MicOff, Video, VideoOff, Phone, Send, X, MessageCircle, Hand } from 'lucide-react';
