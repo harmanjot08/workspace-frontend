@@ -358,18 +358,6 @@ export default function MeetingPage() {
                             {raisedHands.map(hand => (
                                 <div key={hand.userId} className="text-sm text-yellow-700 flex justify-between items-center">
                                     <span>{hand.userName}</span>
-                                    <button
-                                        onClick={() => {
-                                            if (currentUser?.role === 'manager') {
-                                                sendLowerHand({
-                                                    meetingId,
-                                                    userId: hand.userId,
-                                                });
-                                            }
-                                        }}
-                                        className="text-xs bg-yellow-200 hover:bg-yellow-300 px-2 py-1 rounded">
-                                        Lower
-                                    </button>
                                 </div>
                             ))}
                         </div>
