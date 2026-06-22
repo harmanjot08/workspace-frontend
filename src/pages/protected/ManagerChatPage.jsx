@@ -426,9 +426,6 @@ export default function ManagerChatPage() {
                             {/* Name */}
                             <div>
                                 <h2 className="text-lg font-bold text-slate-900">{getChatName(selectedChat)}</h2>
-                                <p className="text-xs text-slate-500">
-                                    {selectedChat?.isGroup ? 'Group' : 'Direct Message'}
-                                </p>
                             </div>
                         </div>
 
