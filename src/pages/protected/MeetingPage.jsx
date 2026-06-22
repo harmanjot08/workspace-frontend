@@ -115,7 +115,20 @@ export default function MeetingPage() {
     const toggleScreenShare = async () => {
         try {
             if (isScreenSharing) {
+                // Stop screen sharing
                 screenStream?.getTracks().forEach(track => track.stop());
+
+                // Replace screen track with camera track in all peer connections
+                if (localStreamRef.current) {
+                    const videoTrack = localStreamRef.current.getVideoTracks()[0];
+                    Object.values(peerConnectionsRef.current).forEach(pc => {
+                        const sender = pc.getSenders().find(s => s.track?.kind === 'video');
+                        if (sender && videoTrack) {
+                            sender.replaceTrack(videoTrack);
+                        }
+                    });
+                }
+
                 setScreenStream(null);
                 setIsScreenSharing(false);
 
@@ -125,6 +138,7 @@ export default function MeetingPage() {
                     userId: currentUser?.id,
                 });
             } else {
+                // Start screen sharing
                 const stream = await navigator.mediaDevices.getDisplayMedia({
                     video: { cursor: 'always' },
                     audio: false,
@@ -133,7 +147,7 @@ export default function MeetingPage() {
                 setScreenStream(stream);
                 setIsScreenSharing(true);
 
-                // ← ADD YE: Store in screenShares locally
+                // Store locally
                 setScreenShares(prev => ({
                     ...prev,
                     [currentUser?.id]: {
@@ -144,6 +158,15 @@ export default function MeetingPage() {
                     }
                 }));
 
+                // ← IMPORTANT: Replace video track in all peer connections
+                const screenVideoTrack = stream.getVideoTracks()[0];
+                Object.values(peerConnectionsRef.current).forEach(pc => {
+                    const sender = pc.getSenders().find(s => s.track?.kind === 'video');
+                    if (sender) {
+                        sender.replaceTrack(screenVideoTrack);
+                    }
+                });
+
                 sendScreenShare({
                     meetingId,
                     socketId: getSocket()?.id,
@@ -151,7 +174,8 @@ export default function MeetingPage() {
                     userId: currentUser?.id,
                 });
 
-                stream.getVideoTracks()[0].onended = () => {
+                // Stop sharing when user stops from browser prompt
+                screenVideoTrack.onended = () => {
                     setScreenStream(null);
                     setIsScreenSharing(false);
                     setScreenShares(prev => {
@@ -159,6 +183,18 @@ export default function MeetingPage() {
                         delete updated[currentUser?.id];
                         return updated;
                     });
+
+                    // Replace back with camera
+                    if (localStreamRef.current) {
+                        const cameraTrack = localStreamRef.current.getVideoTracks()[0];
+                        Object.values(peerConnectionsRef.current).forEach(pc => {
+                            const sender = pc.getSenders().find(s => s.track?.kind === 'video');
+                            if (sender && cameraTrack) {
+                                sender.replaceTrack(cameraTrack);
+                            }
+                        });
+                    }
+
                     sendScreenShareStop({
                         meetingId,
                         socketId: getSocket()?.id,
