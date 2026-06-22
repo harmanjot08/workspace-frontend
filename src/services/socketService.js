@@ -181,6 +181,28 @@ export const onLowerHand = (callback) => {
     }
 };
 
+export const sendScreenShare = (data) => {
+    if (socket) socket.emit('screen-share-start', data);
+};
+
+export const onScreenShareStart = (callback) => {
+    if (socket) {
+        socket.off('screen-share-start');
+        socket.on('screen-share-start', callback);
+    }
+};
+
+export const sendScreenShareStop = (data) => {
+    if (socket) socket.emit('screen-share-stop', data);
+};
+
+export const onScreenShareStop = (callback) => {
+    if (socket) {
+        socket.off('screen-share-stop');
+        socket.on('screen-share-stop', callback);
+    }
+};
+
 export const disconnectSocket = () => {
     if (socket) {
         socket.disconnect();

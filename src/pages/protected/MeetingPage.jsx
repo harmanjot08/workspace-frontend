@@ -19,9 +19,13 @@ import {
     onRaiseHand,
     sendLowerHand,
     onLowerHand,
+    sendScreenShare,
+    onScreenShareStart,
+    sendScreenShareStop,
+    onScreenShareStop,
 } from '../../services/socketService';
 import { getSocket } from '../../services/socketService';
-import { Mic, MicOff, Video, VideoOff, Phone, Send, X, MessageCircle, Hand } from 'lucide-react';
+import { Mic, MicOff, Video, VideoOff, Phone, Send, X, MessageCircle, Hand, Monitor } from 'lucide-react';
 
 export default function MeetingPage() {
     const { meetingId } = useParams();
@@ -34,6 +38,9 @@ export default function MeetingPage() {
     const [chatMessages, setChatMessages] = useState([]);
     const [isHandRaised, setIsHandRaised] = useState(false);
     const [raisedHands, setRaisedHands] = useState([]);
+    const [isScreenSharing, setIsScreenSharing] = useState(false);
+    const [screenStream, setScreenStream] = useState(null);
+    const [screenShares, setScreenShares] = useState({});
     const [chatInput, setChatInput] = useState('');
     const [showChat, setShowChat] = useState(true);
     const [remoteStreams, setRemoteStreams] = useState({});
@@ -102,6 +109,55 @@ export default function MeetingPage() {
                 socketId: getSocket()?.id,
                 userId: currentUser?.id,
             });
+        }
+    };
+
+    const toggleScreenShare = async () => {
+        try {
+            if (isScreenSharing) {
+                // Stop screen sharing
+                screenStream?.getTracks().forEach(track => track.stop());
+                setScreenStream(null);
+                setIsScreenSharing(false);
+
+                // Notify others
+                sendScreenShareStop({
+                    meetingId,
+                    socketId: getSocket()?.id,
+                    userId: currentUser?.id,
+                });
+            } else {
+                // Start screen sharing
+                const stream = await navigator.mediaDevices.getDisplayMedia({
+                    video: { cursor: 'always' },
+                    audio: false,
+                });
+
+                setScreenStream(stream);
+                setIsScreenSharing(true);
+
+                // Notify others
+                sendScreenShare({
+                    meetingId,
+                    socketId: getSocket()?.id,
+                    userName: currentUser?.name || 'User',
+                    userId: currentUser?.id,
+                });
+
+                // Stop sharing when user stops from browser prompt
+                stream.getVideoTracks()[0].onended = () => {
+                    setScreenStream(null);
+                    setIsScreenSharing(false);
+                    sendScreenShareStop({
+                        meetingId,
+                        socketId: getSocket()?.id,
+                        userId: currentUser?.id,
+                    });
+                };
+            }
+        } catch (error) {
+            console.error('Screen share error:', error);
+            setIsScreenSharing(false);
         }
     };
 
@@ -274,6 +330,23 @@ export default function MeetingPage() {
             setRaisedHands(prev => prev.filter(h => h.userId !== userId));
         });
 
+        onScreenShareStart(({ socketId, userName, userId }) => {
+            console.log("Screen share started by:", userName);
+            setScreenShares(prev => ({
+                ...prev,
+                [userId]: { socketId, userName, userId }
+            }));
+        });
+
+        onScreenShareStop(({ userId }) => {
+            console.log("Screen share stopped by:", userId);
+            setScreenShares(prev => {
+                const updated = { ...prev };
+                delete updated[userId];
+                return updated;
+            });
+        });
+
         // Cleanup
         return () => {
             if (localStreamRef.current) {
@@ -364,6 +437,24 @@ export default function MeetingPage() {
                     </div>
                 )}
 
+                {Object.keys(screenShares).length > 0 && (
+                    <div className="bg-green-50 border-l-4 border-green-400 p-4 mb-4">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Monitor size={18} className="text-green-600" />
+                            <p className="text-sm font-semibold text-green-800">
+                                Sharing Screen ({Object.keys(screenShares).length})
+                            </p>
+                        </div>
+                        <div className="space-y-1">
+                            {Object.values(screenShares).map(share => (
+                                <div key={share.userId} className="text-sm text-green-700">
+                                    {share.userName} is sharing screen
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {/* Control bar - always visible */}
                 <div className="flex gap-4">
                     <button
@@ -376,6 +467,16 @@ export default function MeetingPage() {
                         onClick={toggleVideo}
                         className={`w-12 h-12 rounded-full flex items-center justify-center transition ${isVideoOn ? 'bg-slate-700 hover:bg-slate-600' : 'bg-red-600 hover:bg-red-700'}`}>
                         {isVideoOn ? <Video size={24} className="text-white" /> : <VideoOff size={24} className="text-white" />}
+                    </button>
+
+                    <button
+                        onClick={toggleScreenShare}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center transition ${isScreenSharing
+                            ? 'bg-green-500 hover:bg-green-600'
+                            : 'bg-slate-700 hover:bg-slate-600'
+                            }`}
+                        title={isScreenSharing ? 'Stop Sharing' : 'Share Screen'}>
+                        <Monitor size={24} className="text-white" />
                     </button>
 
                     <button
