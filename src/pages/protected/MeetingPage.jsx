@@ -405,7 +405,7 @@ export default function MeetingPage() {
     }, [meetingId, token, navigate]);
 
     // Calculate grid columns based on participants count
-    const totalParticipants = Object.keys(remoteStreams).length + 1; // +1 for local
+    const totalParticipants = Object.keys(remoteStreams).length + 1; 
     const gridCols = Math.ceil(Math.sqrt(totalParticipants));
 
     return (

@@ -29,6 +29,7 @@ import SettingsPage from '../pages/protected/SettingsPage';
 import UserDashboard from '../pages/protected/UserDashboard';
 import UserChatPage from '../components/UserChatPage';
 import MeetingPage from '../pages/protected/MeetingPage';
+import EmailPage from '../pages/protected/EmailPage';
 
 const PublicRoute = ({ children }) => {
     const { isAuthenticated, user } = useAuthStore();
@@ -231,6 +232,15 @@ export default function AppRoutes() {
                     element={
                         <ProtectedRoute requiredRole="user">
                             <UserChatPage />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/emails"
+                    element={
+                        <ProtectedRoute requiredRole="user,manager,admin">
+                            <EmailPage />
                         </ProtectedRoute>
                     }
                 />
