@@ -60,7 +60,7 @@ export default function ManagerSidebar() {
     const isActive = (path) => location.pathname === path;
 
     return (
-        <aside className="fixed left-0 top-20 bottom-0 w-64 bg-slate-50 border-r border-slate-200 overflow-y-auto">
+        <aside className="fixed left-0 top-16 bottom-0 w-64 bg-slate-50 border-r border-slate-200 overflow-y-auto">
             <div className="p-6">
                 <nav className="space-y-2">
                     {menuItems.map((item) => {
@@ -72,8 +72,8 @@ export default function ManagerSidebar() {
                                 key={item.path}
                                 to={item.path}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition ${active
-                                        ? 'bg-blue-100 text-blue-600 font-semibold'
-                                        : 'text-slate-700 hover:bg-slate-200'
+                                    ? 'bg-blue-100 text-blue-600 font-semibold'
+                                    : 'text-slate-700 hover:bg-slate-200'
                                     }`}
                             >
                                 <Icon className="w-5 h-5" />
