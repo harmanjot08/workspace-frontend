@@ -6,6 +6,7 @@ import {
     Calendar,
     CheckSquare,
     MessageSquare,
+    Mail,
     Settings,
 } from 'lucide-react';
 
@@ -48,6 +49,12 @@ export default function ManagerSidebar() {
             label: 'Chat Groups',
             path: '/manager/chat',
             badge: null,
+        },
+        {
+            icon: Mail,
+            label: 'Email',
+            id: '/emails',
+            badge: null
         },
         {
             icon: Settings,
