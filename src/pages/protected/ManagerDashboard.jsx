@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import ManagerLayout from '../../components/ManagerLayout';
 import { Users, UserCheck, UserX, ClipboardList } from 'lucide-react';
 import ManagerSidebar from '../../components/ManagerSidebar';
 import EmailPage from './EmailPage';
