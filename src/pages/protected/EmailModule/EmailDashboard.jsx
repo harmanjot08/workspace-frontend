@@ -3,6 +3,7 @@ import { Mail, Plus } from 'lucide-react';
 import EmailList from './EmailList';
 import EmailCompose from './EmailCompose';
 import EmailDetail from './EmailDetail';
+import { emailApi } from '../../../api/emailApi';
 
 export default function EmailDashboard() {
     const [emails, setEmails] = useState([]);
@@ -20,7 +21,15 @@ export default function EmailDashboard() {
     const fetchEmails = async () => {
         try {
             setLoading(true);
-            // API calls here
+            let response;
+            if (activeFolder === 'inbox') {
+                response = await emailApi.getInbox(token);
+            } else if (activeFolder === 'sent') {
+                response = await emailApi.getSentEmails(token);
+            } else if (activeFolder === 'drafts') {
+                response = await emailApi.getDrafts(token);
+            }
+            setEmails(response.data || []);
         } catch (error) {
             console.error('Fetch error:', error);
         } finally {
@@ -53,8 +62,8 @@ export default function EmailDashboard() {
                                 setSelectedEmail(null);
                             }}
                             className={`w-full text-left px-4 py-2 rounded-lg capitalize font-medium transition ${activeFolder === folder
-                                    ? 'bg-blue-100 text-blue-600'
-                                    : 'text-gray-700 hover:bg-gray-100'
+                                ? 'bg-blue-100 text-blue-600'
+                                : 'text-gray-700 hover:bg-gray-100'
                                 }`}>
                             {folder}
                         </button>

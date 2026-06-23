@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Send, X } from 'lucide-react';
+import { emailApi } from '../../../api/emailApi';
 
 export default function EmailCompose({ onClose, onSent }) {
     const [to, setTo] = useState('');
@@ -17,7 +18,7 @@ export default function EmailCompose({ onClose, onSent }) {
 
         try {
             setLoading(true);
-            // API call here
+            await emailApi.sendEmail(token, { to, subject, body });
             alert('Email sent!');
             onSent();
         } catch (error) {

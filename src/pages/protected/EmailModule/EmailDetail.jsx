@@ -1,4 +1,5 @@
 import { Trash2 } from 'lucide-react';
+import { emailApi } from '../../../api/emailApi';
 
 export default function EmailDetail({ email, onDelete }) {
     return (
@@ -17,7 +18,16 @@ export default function EmailDetail({ email, onDelete }) {
                         </p>
                     </div>
                     <button
-                        onClick={onDelete}
+                        onClick={async () => {
+                            const token = localStorage.getItem('accessToken');
+                            try {
+                                await emailApi.deleteEmail(token, email.id);
+                                onDelete();
+                            } catch (error) {
+                                console.error('Delete error:', error);
+                                alert('Failed to delete email');
+                            }
+                        }}
                         className="text-red-600 hover:bg-red-50 p-2 rounded">
                         <Trash2 size={20} />
                     </button>

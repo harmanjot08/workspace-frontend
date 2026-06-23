@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import {
     LayoutDashboard,
     Users,
@@ -53,7 +53,8 @@ export default function ManagerSidebar() {
         {
             icon: Mail,
             label: 'Email',
-            id: 'email',
+            path: '/emails',
+            badge: null,
         },
         {
             icon: Settings,
