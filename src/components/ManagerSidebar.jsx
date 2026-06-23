@@ -61,7 +61,7 @@ export default function ManagerSidebar() {
 
     return (
         <aside className="fixed left-0 top-16 bottom-0 w-64 bg-slate-50 border-r border-slate-200 overflow-y-auto">
-            <div className="p-6">
+            <div className="px-6 pt-2 pb-6">
                 <nav className="space-y-2">
                     {menuItems.map((item) => {
                         const Icon = item.icon;
