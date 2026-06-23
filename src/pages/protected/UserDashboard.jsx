@@ -4,7 +4,8 @@ import UserTasksPage from '../../components/UserTasksPage';
 import UserCalendarPage from '../../components/UserCalendarPage';
 import UserChatPage from '../../components/UserChatPage';
 import UserProfilePage from '../../components/UserProfilePage';
-import { LayoutDashboard, CheckSquare, Calendar, MessageSquare, User, LogOut } from 'lucide-react';
+import EmailPage from '../../pages/protected/EmailPage';
+import { LayoutDashboard, CheckSquare, Calendar, MessageSquare, Mail, User, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function UserDashboard() {
@@ -57,6 +58,7 @@ export default function UserDashboard() {
         { id: 'tasks', icon: CheckSquare, label: 'Tasks' },
         { id: 'calendar', icon: Calendar, label: 'Calendar' },
         { id: 'chat', icon: MessageSquare, label: 'Chat' },
+        { id: 'email', icon: Mail, label: 'Email' },
         { id: 'profile', icon: User, label: 'Profile' },
     ];
 
@@ -97,6 +99,8 @@ export default function UserDashboard() {
                 return <UserCalendarPage meetings={[]} tasks={[]} />;
             case 'chat':
                 return <UserChatPage />;
+            case 'email':
+                return <EmailPage />;
             case 'profile':
                 return profile ? <UserProfilePage profile={profile} onUpdateProfile={handleUpdateProfile} /> : null;
             default:

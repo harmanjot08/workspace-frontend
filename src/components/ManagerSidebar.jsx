@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Briefcase, Calendar, CheckSquare, MessageSquare, Settings } from 'lucide-react';
+import { LayoutDashboard, Users, Briefcase, Calendar, CheckSquare, MessageSquare, Mail, Settings } from 'lucide-react';
 export default function ManagerSidebar() {
     const location = useLocation();
     const menuItems = [
@@ -37,6 +37,12 @@ export default function ManagerSidebar() {
             icon: MessageSquare,
             label: 'Chat Groups',
             path: '/manager/chat',
+            badge: null
+        },
+        {
+            icon: Mail,
+            label: 'Email',
+            path: '/emails',
             badge: null
         },
         {
