@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import ManagerLayout from '../../components/ManagerLayout';
 import { Users, UserCheck, UserX, ClipboardList } from 'lucide-react';
 import ManagerSidebar from '../../components/ManagerSidebar';
-import EmailPage from './EmailPage';
+import { EmailDashboard } from './EmailModule';
 
 export default function ManagerDashboard() {
     const [stats, setStats] = useState({
@@ -48,7 +48,7 @@ export default function ManagerDashboard() {
     const renderSection = () => {
         switch (activeSection) {
             case 'email':
-                return <EmailPage />;
+                return <EmailDashboard />;
             case 'overview':
             default:
                 return (

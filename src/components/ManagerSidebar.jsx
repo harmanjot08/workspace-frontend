@@ -53,8 +53,7 @@ export default function ManagerSidebar() {
         {
             icon: Mail,
             label: 'Email',
-            id: '/emails',
-            badge: null
+            id: 'email',
         },
         {
             icon: Settings,
