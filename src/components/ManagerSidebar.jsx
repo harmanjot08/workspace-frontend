@@ -41,9 +41,9 @@ export default function ManagerSidebar({ activeSection, onSelectSection }) {
     ];
 
     return (
-        <aside className="fixed left-0 top-0 bottom-0 w-64 bg-slate-50 border-r border-slate-200 overflow-y-auto">
-            <div className="p-6">
-                <nav className="space-y-2">
+        <aside className="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-slate-200 overflow-y-auto pt-20">
+            <div className="p-4">
+                <nav className="space-y-1">
                     {menuItems.map((item) => {
                         const Icon = item.icon;
                         const active = activeSection === item.id;
@@ -51,12 +51,12 @@ export default function ManagerSidebar({ activeSection, onSelectSection }) {
                             <button
                                 key={item.id}
                                 onClick={() => onSelectSection(item.id)}
-                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${active
+                                className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg transition text-sm ${active
                                     ? 'bg-blue-100 text-blue-600 font-semibold'
-                                    : 'text-slate-700 hover:bg-slate-200'
+                                    : 'text-slate-700 hover:bg-slate-100'
                                     }`}>
                                 <Icon className="w-5 h-5" />
-                                <span className="flex-1">{item.label}</span>
+                                <span>{item.label}</span>
                             </button>
                         );
                     })}
