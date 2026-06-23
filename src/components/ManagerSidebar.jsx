@@ -1,63 +1,90 @@
-import { Link } from 'react-router-dom';
-import { LayoutDashboard, Users, Briefcase, Calendar, CheckSquare, MessageSquare, Settings } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import {
+    LayoutDashboard,
+    Users,
+    Briefcase,
+    Calendar,
+    CheckSquare,
+    MessageSquare,
+    Settings,
+} from 'lucide-react';
 
-export default function ManagerSidebar({ activeSection, onSelectSection }) {
+export default function ManagerSidebar() {
+    const location = useLocation();
+
     const menuItems = [
         {
             icon: LayoutDashboard,
             label: 'Overview',
-            id: 'overview',
+            path: '/manager',
+            badge: null,
         },
         {
             icon: Users,
             label: 'Users',
-            id: 'users',
+            path: '/manager/users',
+            badge: null,
         },
         {
             icon: Briefcase,
             label: 'Roles',
-            id: 'roles',
+            path: '/manager/roles',
+            badge: null,
         },
         {
             icon: Calendar,
             label: 'Calendar',
-            id: 'calendar',
+            path: '/manager/calendar',
+            badge: null,
         },
         {
             icon: CheckSquare,
             label: 'Tasks',
-            id: 'tasks',
+            path: '/manager/tasks',
+            badge: null,
         },
         {
             icon: MessageSquare,
             label: 'Chat Groups',
-            id: 'chat',
+            path: '/manager/chat',
+            badge: null,
         },
         {
             icon: Settings,
             label: 'Settings',
-            id: 'settings',
-        }
+            path: '/manager/settings',
+            badge: null,
+        },
     ];
 
+    const isActive = (path) => location.pathname === path;
+
     return (
-        <aside className="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-slate-200 overflow-y-auto pt-20">
-            <div className="p-4">
-                <nav className="space-y-1">
+        <aside className="fixed left-0 top-20 bottom-0 w-64 bg-slate-50 border-r border-slate-200 overflow-y-auto">
+            <div className="p-6">
+                <nav className="space-y-2">
                     {menuItems.map((item) => {
                         const Icon = item.icon;
-                        const active = activeSection === item.id;
+                        const active = isActive(item.path);
+
                         return (
-                            <button
-                                key={item.id}
-                                onClick={() => onSelectSection(item.id)}
-                                className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg transition text-sm ${active
-                                    ? 'bg-blue-100 text-blue-600 font-semibold'
-                                    : 'text-slate-700 hover:bg-slate-100'
-                                    }`}>
+                            <Link
+                                key={item.path}
+                                to={item.path}
+                                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition ${active
+                                        ? 'bg-blue-100 text-blue-600 font-semibold'
+                                        : 'text-slate-700 hover:bg-slate-200'
+                                    }`}
+                            >
                                 <Icon className="w-5 h-5" />
-                                <span>{item.label}</span>
-                            </button>
+                                <span className="flex-1">{item.label}</span>
+
+                                {item.badge && (
+                                    <span className="px-2 py-1 bg-red-500 text-white text-xs rounded-full font-bold">
+                                        {item.badge}
+                                    </span>
+                                )}
+                            </Link>
                         );
                     })}
                 </nav>
