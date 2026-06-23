@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { LayoutDashboard, Users, Briefcase, Calendar, CheckSquare, MessageSquare, Mail, Settings } from 'lucide-react';
+import { LayoutDashboard, Users, Briefcase, Calendar, CheckSquare, MessageSquare, Settings } from 'lucide-react';
 
 export default function ManagerSidebar({ activeSection, onSelectSection }) {
     const menuItems = [
@@ -34,11 +34,6 @@ export default function ManagerSidebar({ activeSection, onSelectSection }) {
             id: 'chat',
         },
         {
-            icon: Mail,
-            label: 'Email',
-            id: 'email',
-        },
-        {
             icon: Settings,
             label: 'Settings',
             id: 'settings',
@@ -57,8 +52,8 @@ export default function ManagerSidebar({ activeSection, onSelectSection }) {
                                 key={item.id}
                                 onClick={() => onSelectSection(item.id)}
                                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${active
-                                        ? 'bg-blue-100 text-blue-600 font-semibold'
-                                        : 'text-slate-700 hover:bg-slate-200'
+                                    ? 'bg-blue-100 text-blue-600 font-semibold'
+                                    : 'text-slate-700 hover:bg-slate-200'
                                     }`}>
                                 <Icon className="w-5 h-5" />
                                 <span className="flex-1">{item.label}</span>
