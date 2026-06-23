@@ -218,6 +218,15 @@ export default function AppRoutes() {
                     }
                 />
 
+                <Route
+                    path="/manager/emails"
+                    element={
+                        <ProtectedRoute requiredRole="manager">
+                            <EmailDashboard />
+                        </ProtectedRoute>
+                    }
+                />
+
                 {/* USER ROUTES */}
                 <Route
                     path="/user"
@@ -237,9 +246,9 @@ export default function AppRoutes() {
                 />
 
                 <Route
-                    path="/emails"
+                    path="/user/emails"
                     element={
-                        <ProtectedRoute requiredRole="user,manager,admin">
+                        <ProtectedRoute requiredRole="user">
                             <EmailDashboard />
                         </ProtectedRoute>
                     }
