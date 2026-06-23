@@ -1,4 +1,5 @@
 import ManagerNavbar from './ManagerNavbar';
+import ManagerSidebar from '../components/ManagerSidebar';
 
 export default function ManagerLayout({ children }) {
     return (
