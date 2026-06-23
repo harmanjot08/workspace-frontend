@@ -52,9 +52,9 @@ export default function ManagerSidebar() {
         },
         {
             icon: Mail,
-            label: 'Email',
-            path: '/emails',
-            badge: null,
+            label: 'Emails',
+            path: '/manager/emails',
+            badge: null
         },
         {
             icon: Settings,
