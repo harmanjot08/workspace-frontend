@@ -65,3 +65,16 @@ export const getEmailById = async (emailId) => {
 
     return res.json();
 };
+
+export const saveDraft = async (payload) => {
+    const res = await fetch(`${BASE_URL}/draft/save`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${getToken()}`,
+        },
+        body: JSON.stringify(payload),
+    });
+
+    return res.json();
+};

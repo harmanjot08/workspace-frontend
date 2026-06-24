@@ -17,6 +17,7 @@ import {
     getDraftEmails,
     sendEmail,
     getEmailById,
+    saveDraft,
 } from '../../api/emailApi';
 
 export function EmailDashboard() {
@@ -118,6 +119,26 @@ ${selectedEmail.body || ''}`,
 
         setShowEmailView(false);
         setShowCompose(true);
+    };
+
+    const handleSaveDraft = async () => {
+        try {
+            await saveDraft(form);
+
+            setShowCompose(false);
+
+            setForm({
+                to: '',
+                subject: '',
+                body: '',
+            });
+
+            if (activeTab === 'drafts') {
+                loadEmails();
+            }
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     return (
@@ -375,6 +396,13 @@ ${selectedEmail.body || ''}`,
                                     className="rounded-xl border border-slate-300 px-5 py-2.5 font-medium text-slate-700 transition hover:bg-slate-50"
                                 >
                                     Cancel
+                                </button>
+
+                                <button
+                                    onClick={handleSaveDraft}
+                                    className="rounded-xl border border-violet-300 px-5 py-2.5 font-medium text-violet-700 transition hover:bg-violet-50"
+                                >
+                                    Save Draft
                                 </button>
 
                                 <button
