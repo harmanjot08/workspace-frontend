@@ -143,7 +143,7 @@ ${selectedEmail.body || ''}`,
 
     return (
         <div className="rounded-3xl bg-slate-50 p-6">
-            <div className="mb-6 rounded-2xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 p-6 text-white shadow-lg">
+            <div className="mb-6 rounded-2xl bg-gradient-to-r from-purple-600 via-purple-500 to-purple-600 p-6 text-white shadow-lg">
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div className="flex items-center gap-4">
                         <div className="rounded-xl bg-white/15 p-3 backdrop-blur">
