@@ -83,6 +83,46 @@ export function EmailDashboard() {
         }
     };
 
+    const handleReply = () => {
+        if (!selectedEmail) return;
+
+        setForm({
+            to: selectedEmail.fromUser?.email || '',
+            subject: `Re: ${selectedEmail.subject || ''}`,
+            body: '',
+        });
+
+        setShowEmailView(false);
+        setShowCompose(true);
+    };
+
+    const handleForward = () => {
+        if (!selectedEmail) return;
+
+        setForm({
+            to: '',
+            subject: `Fwd: ${selectedEmail.subject || ''}`,
+            body: `
+
+--- Forwarded Message ---
+
+From: ${selectedEmail.fromUser?.email || ''}
+
+Subject: ${selectedEmail.subject || ''}
+
+Date: ${selectedEmail.createdAt
+                    ? new Date(selectedEmail.createdAt).toLocaleString()
+                    : ''
+                }
+
+${selectedEmail.body || ''}
+`,
+        });
+
+        setShowEmailView(false);
+        setShowCompose(true);
+    };
+
     return (
         <div className="rounded-3xl bg-slate-50 p-6">
             <div className="mb-6 rounded-2xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 p-6 text-white shadow-lg">
@@ -210,6 +250,7 @@ export function EmailDashboard() {
 
                                 <div className="flex gap-2">
                                     <button
+                                        onClick={handleReply}
                                         className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 hover:bg-slate-50"
                                     >
                                         <Reply className="h-4 w-4" />
@@ -217,6 +258,7 @@ export function EmailDashboard() {
                                     </button>
 
                                     <button
+                                        onClick={handleForward}
                                         className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 hover:bg-slate-50"
                                     >
                                         <Forward className="h-4 w-4" />
