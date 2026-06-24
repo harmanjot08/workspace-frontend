@@ -5,18 +5,26 @@ import {
     Inbox,
     Send,
     FileText,
+    ArrowLeft,
+    Reply,
+    Forward,
+    Calendar,
+    User,
 } from 'lucide-react';
 import {
     getInboxEmails,
     getSentEmails,
     getDraftEmails,
     sendEmail,
+    getEmailById,
 } from '../../api/emailApi';
 
 export function EmailDashboard() {
     const [activeTab, setActiveTab] = useState('inbox');
     const [emails, setEmails] = useState([]);
     const [showCompose, setShowCompose] = useState(false);
+    const [selectedEmail, setSelectedEmail] = useState(null);
+    const [showEmailView, setShowEmailView] = useState(false);
 
     const [form, setForm] = useState({
         to: '',
@@ -59,6 +67,17 @@ export function EmailDashboard() {
             setShowCompose(false);
 
             loadEmails();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleOpenEmail = async (emailId) => {
+        try {
+            const response = await getEmailById(emailId);
+
+            setSelectedEmail(response.data);
+            setShowEmailView(true);
         } catch (error) {
             console.error(error);
         }
@@ -146,7 +165,8 @@ export function EmailDashboard() {
                     emails.map((email) => (
                         <div
                             key={email.id}
-                            className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+                            onClick={() => handleOpenEmail(email.id)}
+                            className="group cursor-pointer rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
                         >
                             <div className="flex items-start justify-between gap-4">
                                 <div className="flex items-start gap-4 flex-1">
@@ -169,6 +189,86 @@ export function EmailDashboard() {
                     ))
                 )}
             </div>
+
+            {showEmailView && selectedEmail && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+                    <div className="w-full max-w-4xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+
+                        <div className="border-b border-slate-200 px-6 py-4">
+                            <div className="flex items-center justify-between">
+
+                                <button
+                                    onClick={() => {
+                                        setShowEmailView(false);
+                                        setSelectedEmail(null);
+                                    }}
+                                    className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 hover:bg-slate-50"
+                                >
+                                    <ArrowLeft className="h-4 w-4" />
+                                    Back
+                                </button>
+
+                                <div className="flex gap-2">
+                                    <button
+                                        className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 hover:bg-slate-50"
+                                    >
+                                        <Reply className="h-4 w-4" />
+                                        Reply
+                                    </button>
+
+                                    <button
+                                        className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 hover:bg-slate-50"
+                                    >
+                                        <Forward className="h-4 w-4" />
+                                        Forward
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-8">
+
+                            <h2 className="mb-6 text-3xl font-bold text-slate-900">
+                                {selectedEmail.subject || "No Subject"}
+                            </h2>
+
+                            <div className="mb-6 rounded-2xl bg-slate-50 p-5">
+
+                                <div className="flex items-center gap-3 mb-3">
+                                    <User className="h-5 w-5 text-slate-500" />
+                                    <span className="font-medium">
+                                        {selectedEmail.fromUser?.name || "Unknown"}
+                                    </span>
+                                </div>
+
+                                <div className="mb-2 text-sm text-slate-600">
+                                    <strong>From:</strong>{" "}
+                                    {selectedEmail.fromUser?.email || "-"}
+                                </div>
+
+                                <div className="mb-2 text-sm text-slate-600">
+                                    <strong>To:</strong>{" "}
+                                    {selectedEmail.recipients?.[0]?.recipientEmail || "-"}
+                                </div>
+
+                                <div className="flex items-center gap-2 text-sm text-slate-500">
+                                    <Calendar className="h-4 w-4" />
+                                    {selectedEmail.createdAt
+                                        ? new Date(selectedEmail.createdAt).toLocaleString()
+                                        : "-"}
+                                </div>
+                            </div>
+
+                            <div className="rounded-2xl border border-slate-200 p-6">
+                                <p className="whitespace-pre-wrap text-slate-700 leading-7">
+                                    {selectedEmail.body}
+                                </p>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {showCompose && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">

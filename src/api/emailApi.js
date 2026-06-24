@@ -55,3 +55,13 @@ export const deleteEmail = async (emailId) => {
 
     return res.json();
 };
+
+export const getEmailById = async (emailId) => {
+    const res = await fetch(`${BASE_URL}/${emailId}`, {
+        headers: {
+            Authorization: `Bearer ${getToken()}`,
+        },
+    });
+
+    return res.json();
+};
