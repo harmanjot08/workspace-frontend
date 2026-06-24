@@ -102,9 +102,7 @@ export function EmailDashboard() {
         setForm({
             to: '',
             subject: `Fwd: ${selectedEmail.subject || ''}`,
-            body: `
-
---- Forwarded Message ---
+            body: `--- Forwarded Message ---
 
 From: ${selectedEmail.fromUser?.email || ''}
 
@@ -115,8 +113,7 @@ Date: ${selectedEmail.createdAt
                     : ''
                 }
 
-${selectedEmail.body || ''}
-`,
+${selectedEmail.body || ''}`,
         });
 
         setShowEmailView(false);
@@ -232,7 +229,7 @@ ${selectedEmail.body || ''}
 
             {showEmailView && selectedEmail && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-                    <div className="w-full max-w-4xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+                    <div className="w-full max-w-5xl max-h-[90vh] overflow-hidden rounded-3xl bg-white shadow-2xl flex flex-col">
 
                         <div className="border-b border-slate-200 px-6 py-4">
                             <div className="flex items-center justify-between">
@@ -268,7 +265,7 @@ ${selectedEmail.body || ''}
                             </div>
                         </div>
 
-                        <div className="p-8">
+                        <div className="flex-1 overflow-y-auto p-8">
 
                             <h2 className="mb-6 text-3xl font-bold text-slate-900">
                                 {selectedEmail.subject || "No Subject"}
@@ -314,7 +311,7 @@ ${selectedEmail.body || ''}
 
             {showCompose && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-                    <div className="w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+                    <div className="w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-3xl bg-white shadow-2xl flex flex-col">
                         <div className="border-b border-slate-200 px-6 py-5">
                             <div className="flex items-center gap-3">
                                 <div className="rounded-xl bg-violet-100 p-2">
@@ -333,7 +330,7 @@ ${selectedEmail.body || ''}
                             </div>
                         </div>
 
-                        <div className="p-6">
+                        <div className="flex-1 overflow-y-auto p-6">
 
                             <input
                                 placeholder="To"
