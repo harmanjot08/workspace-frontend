@@ -223,7 +223,21 @@ ${selectedEmail.body || ''}`,
                     emails.map((email) => (
                         <div
                             key={email.id}
-                            onClick={() => handleOpenEmail(email.id)}
+                            onClick={() => {
+                                if (activeTab === 'drafts') {
+                                    setForm({
+                                        to:
+                                            email.recipients?.[0]?.recipientEmail ||
+                                            '',
+                                        subject: email.subject || '',
+                                        body: email.body || '',
+                                    });
+
+                                    setShowCompose(true);
+                                } else {
+                                    handleOpenEmail(email.id);
+                                }
+                            }}
                             className="group cursor-pointer rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
                         >
                             <div className="flex items-start justify-between gap-4">
