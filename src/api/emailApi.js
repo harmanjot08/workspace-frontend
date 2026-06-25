@@ -32,6 +32,16 @@ export const getDraftEmails = async () => {
     return res.json();
 };
 
+export const getPromotionEmails = async () => {
+    const res = await fetch(`${BASE_URL}/promotions`, {
+        headers: {
+            Authorization: `Bearer ${getToken()}`,
+        },
+    });
+
+    return res.json();
+};
+
 export const sendEmail = async (payload) => {
     const res = await fetch(`${BASE_URL}/send`, {
         method: 'POST',

@@ -5,6 +5,7 @@ import {
     Inbox,
     Send,
     FileText,
+    Tag,
     ArrowLeft,
     Reply,
     Forward,
@@ -15,6 +16,7 @@ import {
     getInboxEmails,
     getSentEmails,
     getDraftEmails,
+    getPromotionEmails,
     sendEmail,
     getEmailById,
     saveDraft,
@@ -41,8 +43,10 @@ export function EmailDashboard() {
                 response = await getInboxEmails();
             } else if (activeTab === 'sent') {
                 response = await getSentEmails();
-            } else {
+            } else if (activeTab === 'drafts') {
                 response = await getDraftEmails();
+            } else if (activeTab === 'promotions') {
+                response = await getPromotionEmails();
             }
 
             setEmails(response.data || []);
@@ -203,6 +207,17 @@ ${selectedEmail.body || ''}`,
                 >
                     <FileText className="h-4 w-4" />
                     Drafts
+                </button>
+
+                <button
+                    onClick={() => setActiveTab("promotions")}
+                    className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 font-medium transition-all duration-200 ${activeTab === "promotions"
+                            ? "bg-violet-600 text-white shadow-lg"
+                            : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                        }`}
+                >
+                    <Tag className="h-4 w-4" />
+                    Promotions
                 </button>
             </div>
 
