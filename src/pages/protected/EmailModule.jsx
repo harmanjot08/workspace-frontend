@@ -6,6 +6,7 @@ import {
     Send,
     FileText,
     Tag,
+    ShieldAlert,
     ArrowLeft,
     Reply,
     Forward,
@@ -17,6 +18,7 @@ import {
     getSentEmails,
     getDraftEmails,
     getPromotionEmails,
+    getSpamEmails,
     sendEmail,
     getEmailById,
     saveDraft,
@@ -47,6 +49,8 @@ export function EmailDashboard() {
                 response = await getDraftEmails();
             } else if (activeTab === 'promotions') {
                 response = await getPromotionEmails();
+            } else if (activeTab === 'spam') {
+                response = await getSpamEmails();
             }
 
             setEmails(response.data || []);
@@ -212,12 +216,23 @@ ${selectedEmail.body || ''}`,
                 <button
                     onClick={() => setActiveTab("promotions")}
                     className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 font-medium transition-all duration-200 ${activeTab === "promotions"
-                            ? "bg-violet-600 text-white shadow-lg"
-                            : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                        ? "bg-violet-600 text-white shadow-lg"
+                        : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                         }`}
                 >
                     <Tag className="h-4 w-4" />
                     Promotions
+                </button>
+
+                <button
+                    onClick={() => setActiveTab("spam")}
+                    className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 font-medium transition-all duration-200 ${activeTab === "spam"
+                            ? "bg-violet-600 text-white shadow-lg"
+                            : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                        }`}
+                >
+                    <ShieldAlert className="h-4 w-4" />
+                    Spam
                 </button>
             </div>
 

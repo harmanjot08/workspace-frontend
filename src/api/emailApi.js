@@ -42,6 +42,16 @@ export const getPromotionEmails = async () => {
     return res.json();
 };
 
+export const getSpamEmails = async () => {
+    const res = await fetch(`${BASE_URL}/spam`, {
+        headers: {
+            Authorization: `Bearer ${getToken()}`,
+        },
+    });
+
+    return res.json();
+};
+
 export const sendEmail = async (payload) => {
     const res = await fetch(`${BASE_URL}/send`, {
         method: 'POST',
