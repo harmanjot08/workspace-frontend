@@ -129,3 +129,24 @@ export const getStarredEmailIds = async () => {
 
     return res.json();
 };
+
+export const moveToTrash = async (emailId) => {
+    const res = await fetch(`${BASE_URL}/${emailId}/trash`, {
+        method: 'PATCH',
+        headers: {
+            Authorization: `Bearer ${getToken()}`,
+        },
+    });
+
+    return res.json();
+};
+
+export const getTrashEmails = async () => {
+    const res = await fetch(`${BASE_URL}/trash`, {
+        headers: {
+            Authorization: `Bearer ${getToken()}`,
+        },
+    });
+
+    return res.json();
+};

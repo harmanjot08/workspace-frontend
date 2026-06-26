@@ -6,6 +6,7 @@ import {
     Send,
     FileText,
     Tag,
+    Trash2,
     ShieldAlert,
     Star,
     ArrowLeft,
@@ -21,8 +22,10 @@ import {
     getPromotionEmails,
     getSpamEmails,
     getStarredEmails,
+    getTrashEmails,
     getStarredEmailIds,
     toggleStarredEmail,
+    moveToTrash,
     sendEmail,
     getEmailById,
     saveDraft,
@@ -58,6 +61,8 @@ export function EmailDashboard() {
                 response = await getSpamEmails();
             } else if (activeTab === 'starred') {
                 response = await getStarredEmails();
+            } else if (activeTab === 'trash') {
+                response = await getTrashEmails();
             }
 
             setEmails(response.data || []);
@@ -101,6 +106,16 @@ export function EmailDashboard() {
     const handleToggleStar = async (emailId) => {
         try {
             await toggleStarredEmail(emailId);
+            loadEmails();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleMoveToTrash = async (emailId) => {
+        try {
+            await moveToTrash(emailId);
+
             loadEmails();
         } catch (error) {
             console.error(error);
@@ -272,6 +287,17 @@ ${selectedEmail.body || ''}`,
                     Starred
                 </button>
 
+                <button
+                    onClick={() => setActiveTab("trash")}
+                    className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 font-medium transition-all duration-200 ${activeTab === "trash"
+                        ? "bg-violet-600 text-white shadow-lg"
+                        : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                        }`}
+                >
+                    <Trash2 className="h-4 w-4" />
+                    Trash
+                </button>
+
             </div>
 
             <div className="space-y-4">
@@ -339,6 +365,16 @@ ${selectedEmail.body || ''}`,
                                             : "text-slate-400 hover:text-yellow-500"
                                             }`}
                                     />
+                                </button>
+                                <button
+                                    onClick={async (e) => {
+                                        e.stopPropagation();
+
+                                        await handleMoveToTrash(email.id);
+                                    }}
+                                    className="rounded-lg p-2 transition hover:bg-red-50"
+                                >
+                                    <Trash2 className="h-5 w-5 text-slate-400 transition-colors hover:text-red-600" />
                                 </button>
                             </div>
                         </div>
