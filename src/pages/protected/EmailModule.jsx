@@ -325,7 +325,9 @@ ${selectedEmail.body || ''}`,
                                     </div>
                                 </div>
                                 <button
-                                    onClick={async () => {
+                                    onClick={async (e) => {
+                                        e.stopPropagation();
+
                                         await handleToggleStar(email.id);
                                         loadStarredIds();
                                     }}
