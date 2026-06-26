@@ -205,7 +205,7 @@ ${selectedEmail.body || ''}`,
                 </div>
             </div>
 
-            <div className="mb-6 flex flex-wrap gap-3">
+            <div className="mb-6 flex items-center gap-3 overflow-x-auto">
                 <button
                     onClick={() => setActiveTab("inbox")}
                     className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 font-medium transition-all duration-200 ${activeTab === "inbox"
@@ -332,8 +332,8 @@ ${selectedEmail.body || ''}`,
                                 >
                                     <Star
                                         className={`h-5 w-5 transition-colors ${starredIds.includes(email.id)
-                                                ? "fill-yellow-400 text-yellow-400"
-                                                : "text-slate-400 hover:text-yellow-500"
+                                            ? "fill-yellow-400 text-yellow-400"
+                                            : "text-slate-400 hover:text-yellow-500"
                                             }`}
                                     />
                                 </button>
