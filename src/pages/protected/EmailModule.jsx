@@ -14,6 +14,7 @@ import {
     Forward,
     Calendar,
     User,
+    RotateCcw,
 } from 'lucide-react';
 import {
     getInboxEmails,
@@ -26,6 +27,7 @@ import {
     getStarredEmailIds,
     toggleStarredEmail,
     moveToTrash,
+    restoreEmail,
     sendEmail,
     getEmailById,
     saveDraft,
@@ -115,6 +117,16 @@ export function EmailDashboard() {
     const handleMoveToTrash = async (emailId) => {
         try {
             await moveToTrash(emailId);
+
+            loadEmails();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleRestoreEmail = async (emailId) => {
+        try {
+            await restoreEmail(emailId);
 
             loadEmails();
         } catch (error) {
@@ -366,16 +378,31 @@ ${selectedEmail.body || ''}`,
                                             }`}
                                     />
                                 </button>
-                                <button
-                                    onClick={async (e) => {
-                                        e.stopPropagation();
+                                {activeTab === "trash" ? (
+                                    <button
+                                        onClick={async (e) => {
+                                            e.stopPropagation();
 
-                                        await handleMoveToTrash(email.id);
-                                    }}
-                                    className="rounded-lg p-2 transition hover:bg-red-50"
-                                >
-                                    <Trash2 className="h-5 w-5 text-slate-400 transition-colors hover:text-red-600" />
-                                </button>
+                                            await handleRestoreEmail(email.id);
+                                        }}
+                                        className="rounded-lg p-2 transition hover:bg-green-50"
+                                        title="Restore"
+                                    >
+                                        <RotateCcw className="h-5 w-5 text-slate-400 transition-colors hover:text-green-600" />
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={async (e) => {
+                                            e.stopPropagation();
+
+                                            await handleMoveToTrash(email.id);
+                                        }}
+                                        className="rounded-lg p-2 transition hover:bg-red-50"
+                                        title="Move to Trash"
+                                    >
+                                        <Trash2 className="h-5 w-5 text-slate-400 transition-colors hover:text-red-600" />
+                                    </button>
+                                )}
                             </div>
                         </div>
                     ))

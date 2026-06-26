@@ -150,3 +150,14 @@ export const getTrashEmails = async () => {
 
     return res.json();
 };
+
+export const restoreEmail = async (emailId) => {
+    const res = await fetch(`${BASE_URL}/${emailId}/restore`, {
+        method: 'PATCH',
+        headers: {
+            Authorization: `Bearer ${getToken()}`,
+        },
+    });
+
+    return res.json();
+};
