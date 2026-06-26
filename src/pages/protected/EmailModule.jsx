@@ -7,6 +7,7 @@ import {
     FileText,
     Tag,
     ShieldAlert,
+    Star,
     ArrowLeft,
     Reply,
     Forward,
@@ -19,6 +20,9 @@ import {
     getDraftEmails,
     getPromotionEmails,
     getSpamEmails,
+    getStarredEmails,
+    getStarredEmailIds,
+    toggleStarredEmail,
     sendEmail,
     getEmailById,
     saveDraft,
@@ -28,6 +32,7 @@ export function EmailDashboard() {
     const [activeTab, setActiveTab] = useState('inbox');
     const [emails, setEmails] = useState([]);
     const [showCompose, setShowCompose] = useState(false);
+    const [starredIds, setStarredIds] = useState([]);
     const [selectedEmail, setSelectedEmail] = useState(null);
     const [showEmailView, setShowEmailView] = useState(false);
 
@@ -51,6 +56,8 @@ export function EmailDashboard() {
                 response = await getPromotionEmails();
             } else if (activeTab === 'spam') {
                 response = await getSpamEmails();
+            } else if (activeTab === 'starred') {
+                response = await getStarredEmails();
             }
 
             setEmails(response.data || []);
@@ -59,8 +66,18 @@ export function EmailDashboard() {
         }
     };
 
+    const loadStarredIds = async () => {
+        try {
+            const response = await getStarredEmailIds();
+            setStarredIds(response.data || []);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     useEffect(() => {
         loadEmails();
+        loadStarredIds();
     }, [activeTab]);
 
     const handleSend = async () => {
@@ -75,6 +92,15 @@ export function EmailDashboard() {
 
             setShowCompose(false);
 
+            loadEmails();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleToggleStar = async (emailId) => {
+        try {
+            await toggleStarredEmail(emailId);
             loadEmails();
         } catch (error) {
             console.error(error);
@@ -227,14 +253,25 @@ ${selectedEmail.body || ''}`,
                 <button
                     onClick={() => setActiveTab("spam")}
                     className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 font-medium transition-all duration-200 ${activeTab === "spam"
-                            ? "bg-violet-600 text-white shadow-lg"
-                            : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                        ? "bg-violet-600 text-white shadow-lg"
+                        : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                         }`}
                 >
                     <ShieldAlert className="h-4 w-4" />
                     Spam
                 </button>
             </div>
+
+            <button
+                onClick={() => setActiveTab("starred")}
+                className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 font-medium transition-all duration-200 ${activeTab === "starred"
+                    ? "bg-violet-600 text-white shadow-lg"
+                    : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                    }`}
+            >
+                <Star className="h-4 w-4" />
+                Starred
+            </button>
 
             <div className="space-y-4">
                 {emails.length === 0 ? (
@@ -286,6 +323,20 @@ ${selectedEmail.body || ''}`,
                                         </p>
                                     </div>
                                 </div>
+                                <button
+                                    onClick={async () => {
+                                        await handleToggleStar(email.id);
+                                        loadStarredIds();
+                                    }}
+                                    className="rounded-lg p-2 transition hover:bg-slate-100"
+                                >
+                                    <Star
+                                        className={`h-5 w-5 transition-colors ${starredIds.includes(email.id)
+                                                ? "fill-yellow-400 text-yellow-400"
+                                                : "text-slate-400 hover:text-yellow-500"
+                                            }`}
+                                    />
+                                </button>
                             </div>
                         </div>
                     ))

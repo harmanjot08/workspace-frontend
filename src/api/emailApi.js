@@ -98,3 +98,34 @@ export const saveDraft = async (payload) => {
 
     return res.json();
 };
+
+export const toggleStarredEmail = async (emailId) => {
+    const res = await fetch(`${BASE_URL}/${emailId}/star`, {
+        method: 'PATCH',
+        headers: {
+            Authorization: `Bearer ${getToken()}`,
+        },
+    });
+
+    return res.json();
+};
+
+export const getStarredEmails = async () => {
+    const res = await fetch(`${BASE_URL}/starred`, {
+        headers: {
+            Authorization: `Bearer ${getToken()}`,
+        },
+    });
+
+    return res.json();
+};
+
+export const getStarredEmailIds = async () => {
+    const res = await fetch(`${BASE_URL}/starred/ids`, {
+        headers: {
+            Authorization: `Bearer ${getToken()}`,
+        },
+    });
+
+    return res.json();
+};
