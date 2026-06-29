@@ -410,6 +410,13 @@ ${selectedEmail.body || ''}`,
                                         <button
                                             onClick={async (e) => {
                                                 e.stopPropagation();
+
+                                                const confirmed = window.confirm(
+                                                    'Are you sure you want to permanently delete this email? This action cannot be undone.'
+                                                );
+
+                                                if (!confirmed) return;
+
                                                 await handlePermanentDelete(email.id);
                                             }}
                                             className="rounded-lg p-2 transition hover:bg-red-50"
@@ -431,23 +438,6 @@ ${selectedEmail.body || ''}`,
                                         <Trash2 className="h-5 w-5 text-slate-400 transition-colors hover:text-red-600" />
                                     </button>
                                 )}
-                                <button
-                                    onClick={async (e) => {
-                                        e.stopPropagation();
-
-                                        if (
-                                            window.confirm(
-                                                'Are you sure you want to permanently delete this email?'
-                                            )
-                                        ) {
-                                            await handlePermanentDelete(email.id);
-                                        }
-                                    }}
-                                    className="rounded-lg p-2 transition hover:bg-red-50"
-                                    title="Delete Permanently"
-                                >
-                                    <Trash2 className="h-5 w-5 text-red-500 transition-colors hover:text-red-700" />
-                                </button>
                             </div>
                         </div>
                     ))
