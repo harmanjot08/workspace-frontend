@@ -134,6 +134,22 @@ export function EmailDashboard() {
         }
     };
 
+    const handlePermanentDelete = async (emailId) => {
+        try {
+            const confirmed = window.confirm(
+                'Are you sure you want to permanently delete this email? This action cannot be undone.'
+            );
+
+            if (!confirmed) return;
+
+            await deleteEmail(emailId);
+
+            loadEmails();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     const handleOpenEmail = async (emailId) => {
         try {
             const response = await getEmailById(emailId);
@@ -379,17 +395,29 @@ ${selectedEmail.body || ''}`,
                                     />
                                 </button>
                                 {activeTab === "trash" ? (
-                                    <button
-                                        onClick={async (e) => {
-                                            e.stopPropagation();
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={async (e) => {
+                                                e.stopPropagation();
+                                                await handleRestoreEmail(email.id);
+                                            }}
+                                            className="rounded-lg p-2 transition hover:bg-green-50"
+                                            title="Restore"
+                                        >
+                                            <RotateCcw className="h-5 w-5 text-slate-400 transition-colors hover:text-green-600" />
+                                        </button>
 
-                                            await handleRestoreEmail(email.id);
-                                        }}
-                                        className="rounded-lg p-2 transition hover:bg-green-50"
-                                        title="Restore"
-                                    >
-                                        <RotateCcw className="h-5 w-5 text-slate-400 transition-colors hover:text-green-600" />
-                                    </button>
+                                        <button
+                                            onClick={async (e) => {
+                                                e.stopPropagation();
+                                                await handlePermanentDelete(email.id);
+                                            }}
+                                            className="rounded-lg p-2 transition hover:bg-red-50"
+                                            title="Delete Permanently"
+                                        >
+                                            <Trash2 className="h-5 w-5 text-red-500 transition-colors hover:text-red-700" />
+                                        </button>
+                                    </div>
                                 ) : (
                                     <button
                                         onClick={async (e) => {
@@ -403,6 +431,23 @@ ${selectedEmail.body || ''}`,
                                         <Trash2 className="h-5 w-5 text-slate-400 transition-colors hover:text-red-600" />
                                     </button>
                                 )}
+                                <button
+                                    onClick={async (e) => {
+                                        e.stopPropagation();
+
+                                        if (
+                                            window.confirm(
+                                                'Are you sure you want to permanently delete this email?'
+                                            )
+                                        ) {
+                                            await handlePermanentDelete(email.id);
+                                        }
+                                    }}
+                                    className="rounded-lg p-2 transition hover:bg-red-50"
+                                    title="Delete Permanently"
+                                >
+                                    <Trash2 className="h-5 w-5 text-red-500 transition-colors hover:text-red-700" />
+                                </button>
                             </div>
                         </div>
                     ))

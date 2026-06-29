@@ -9,7 +9,7 @@ export const getInboxEmails = async () => {
         },
     });
 
-    return res.json();
+    return res.json();  
 };
 
 export const getSentEmails = async () => {
