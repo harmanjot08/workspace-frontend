@@ -31,6 +31,7 @@ import {
     sendEmail,
     getEmailById,
     saveDraft,
+    deleteEmail,
 } from '../../api/emailApi';
 
 export function EmailDashboard() {
