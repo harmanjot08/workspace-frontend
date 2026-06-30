@@ -425,12 +425,12 @@ ${selectedEmail.body || ''}`,
                         </span>
                     </div>
 
-                    renderSearchSection('Inbox', searchResults.results.inbox)
-                    renderSearchSection('Sent', searchResults.results.sent)
-                    renderSearchSection('Drafts', searchResults.results.drafts)
-                    renderSearchSection('Promotions', searchResults.results.promotions)
-                    renderSearchSection('Spam', searchResults.results.spam)
-                    renderSearchSection('Trash', searchResults.results.trash)
+                    {renderSearchSection('Inbox', searchResults.results.inbox)}
+                    {renderSearchSection('Sent', searchResults.results.sent)}
+                    {renderSearchSection('Drafts', searchResults.results.drafts)}
+                    {renderSearchSection('Promotions', searchResults.results.promotions)}
+                    {renderSearchSection('Spam', searchResults.results.spam)}
+                    {renderSearchSection('Trash', searchResults.results.trash)}
 
                 </div>
 
