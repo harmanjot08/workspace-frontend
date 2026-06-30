@@ -110,7 +110,7 @@ export function EmailDashboard() {
                 const response = await searchEmails(trimmedQuery);
 
                 if (response.success) {
-                    setSearchResults(response.results);
+                    setSearchResults(response);
                 }
             } catch (error) {
                 console.error(error);
@@ -254,6 +254,43 @@ ${selectedEmail.body || ''}`,
         }
     };
 
+    const renderSearchSection = (title, emails) => {
+        if (!emails || emails.length === 0) return null;
+
+        return (
+            <div className="space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                    <h3 className="text-lg font-semibold text-slate-800">
+                        {title}
+                    </h3>
+
+                    <span className="rounded-full bg-violet-100 px-3 py-1 text-sm font-medium text-violet-700">
+                        {emails.length}
+                    </span>
+                </div>
+
+                <div className="space-y-4">
+                    {emails.map((email) => (
+                        <EmailCard
+                            key={email.id}
+                            email={email}
+                            activeTab={title.toLowerCase()}
+                            starredIds={starredIds}
+                            loadStarredIds={loadStarredIds}
+                            handleToggleStar={handleToggleStar}
+                            handleMoveToTrash={handleMoveToTrash}
+                            handleRestoreEmail={handleRestoreEmail}
+                            handlePermanentDelete={handlePermanentDelete}
+                            handleOpenEmail={handleOpenEmail}
+                            setForm={setForm}
+                            setShowCompose={setShowCompose}
+                        />
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="rounded-3xl bg-slate-50 p-6">
             <div className="mb-6 rounded-2xl bg-gradient-to-r from-purple-600 via-purple-500 to-purple-600 p-6 text-white shadow-lg">
@@ -374,38 +411,64 @@ ${selectedEmail.body || ''}`,
 
             </div>
 
-            <div className="space-y-4">
-                {emails.length === 0 ? (
-                    <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
-                        <Mail className="mx-auto h-12 w-12 text-slate-300" />
+            {searchQuery.trim() && searchResults ? (
 
-                        <h3 className="mt-4 text-lg font-semibold text-slate-800">
-                            No emails found
-                        </h3>
+                <div className="space-y-8">
 
-                        <p className="mt-2 text-sm text-slate-500">
-                            Emails in this folder will appear here.
-                        </p>
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-xl font-bold text-slate-800">
+                            Search Results
+                        </h2>
+
+                        <span className="rounded-full bg-violet-100 px-3 py-1 text-sm font-medium text-violet-700">
+                            {searchResults.total} Results
+                        </span>
                     </div>
-                ) : (
-                    emails.map((email) => (
-                        <EmailCard
-                            key={email.id}
-                            email={email}
-                            activeTab={activeTab}
-                            starredIds={starredIds}
-                            loadStarredIds={loadStarredIds}
-                            handleToggleStar={handleToggleStar}
-                            handleMoveToTrash={handleMoveToTrash}
-                            handleRestoreEmail={handleRestoreEmail}
-                            handlePermanentDelete={handlePermanentDelete}
-                            handleOpenEmail={handleOpenEmail}
-                            setForm={setForm}
-                            setShowCompose={setShowCompose}
-                        />
-                    ))
-                )}
-            </div>
+
+                    renderSearchSection('Inbox', searchResults.results.inbox)
+                    renderSearchSection('Sent', searchResults.results.sent)
+                    renderSearchSection('Drafts', searchResults.results.drafts)
+                    renderSearchSection('Promotions', searchResults.results.promotions)
+                    renderSearchSection('Spam', searchResults.results.spam)
+                    renderSearchSection('Trash', searchResults.results.trash)
+
+                </div>
+
+            ) : (
+
+                <div className="space-y-4">
+                    {emails.length === 0 ? (
+                        <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
+                            <Mail className="mx-auto h-12 w-12 text-slate-300" />
+
+                            <h3 className="mt-4 text-lg font-semibold text-slate-800">
+                                No emails found
+                            </h3>
+
+                            <p className="mt-2 text-sm text-slate-500">
+                                Emails in this folder will appear here.
+                            </p>
+                        </div>
+                    ) : (
+                        emails.map((email) => (
+                            <EmailCard
+                                key={email.id}
+                                email={email}
+                                activeTab={activeTab}
+                                starredIds={starredIds}
+                                loadStarredIds={loadStarredIds}
+                                handleToggleStar={handleToggleStar}
+                                handleMoveToTrash={handleMoveToTrash}
+                                handleRestoreEmail={handleRestoreEmail}
+                                handlePermanentDelete={handlePermanentDelete}
+                                handleOpenEmail={handleOpenEmail}
+                                setForm={setForm}
+                                setShowCompose={setShowCompose}
+                            />
+                        ))
+                    )}
+                </div>
+            )}
 
             {showEmailView && selectedEmail && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
