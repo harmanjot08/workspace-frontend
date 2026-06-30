@@ -430,6 +430,7 @@ ${selectedEmail.body || ''}`,
                     {renderSearchSection('Drafts', searchResults.results.drafts)}
                     {renderSearchSection('Promotions', searchResults.results.promotions)}
                     {renderSearchSection('Spam', searchResults.results.spam)}
+                    {renderSearchSection('Starred', searchResults.results.starred)}
                     {renderSearchSection('Trash', searchResults.results.trash)}
 
                 </div>
