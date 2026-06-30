@@ -9,7 +9,7 @@ export const getInboxEmails = async () => {
         },
     });
 
-    return res.json();  
+    return res.json();
 };
 
 export const getSentEmails = async () => {
@@ -158,6 +158,19 @@ export const restoreEmail = async (emailId) => {
             Authorization: `Bearer ${getToken()}`,
         },
     });
+
+    return res.json();
+};
+
+export const searchEmails = async (query) => {
+    const res = await fetch(
+        `${BASE_URL}/search?q=${encodeURIComponent(query)}`,
+        {
+            headers: {
+                Authorization: `Bearer ${getToken()}`,
+            },
+        }
+    );
 
     return res.json();
 };
