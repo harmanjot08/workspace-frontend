@@ -120,6 +120,16 @@ export const getStarredEmails = async () => {
     return res.json();
 };
 
+export const getImportantEmails = async () => {
+    const res = await fetch(`${BASE_URL}/important`, {
+        headers: {
+            Authorization: `Bearer ${getToken()}`,
+        },
+    });
+
+    return res.json();
+};
+
 export const getStarredEmailIds = async () => {
     const res = await fetch(`${BASE_URL}/starred/ids`, {
         headers: {

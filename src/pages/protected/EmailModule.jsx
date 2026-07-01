@@ -10,6 +10,7 @@ import {
     Trash2,
     ShieldAlert,
     Star,
+    BadgeAlert,
     ArrowLeft,
     Reply,
     Forward,
@@ -24,6 +25,7 @@ import {
     getPromotionEmails,
     getSpamEmails,
     getStarredEmails,
+    getImportantEmails,
     getTrashEmails,
     getStarredEmailIds,
     toggleStarredEmail,
@@ -69,7 +71,10 @@ export function EmailDashboard() {
                 response = await getSpamEmails();
             } else if (activeTab === 'starred') {
                 response = await getStarredEmails();
-            } else if (activeTab === 'trash') {
+            } else if (activeTab === 'important') {
+                response = await getImportantEmails();
+            }
+            else if (activeTab === 'trash') {
                 response = await getTrashEmails();
             }
 
@@ -399,6 +404,17 @@ ${selectedEmail.body || ''}`,
                 </button>
 
                 <button
+                    onClick={() => setActiveTab("important")}
+                    className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 font-medium transition-all duration-200 ${activeTab === "important"
+                        ? "bg-violet-600 text-white shadow-lg"
+                        : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                        }`}
+                >
+                    <Star className="h-4 w-4" />
+                    Important
+                </button>
+
+                <button
                     onClick={() => setActiveTab("trash")}
                     className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 font-medium transition-all duration-200 ${activeTab === "trash"
                         ? "bg-violet-600 text-white shadow-lg"
@@ -430,7 +446,9 @@ ${selectedEmail.body || ''}`,
                     {renderSearchSection('Drafts', searchResults.results.drafts)}
                     {renderSearchSection('Promotions', searchResults.results.promotions)}
                     {renderSearchSection('Spam', searchResults.results.spam)}
+                    {renderSearchSection('Important', searchResults.results.important)}
                     {renderSearchSection('Starred', searchResults.results.starred)}
+                    {renderSearchSection('Important', searchResults.results.important)}
                     {renderSearchSection('Trash', searchResults.results.trash)}
 
                 </div>

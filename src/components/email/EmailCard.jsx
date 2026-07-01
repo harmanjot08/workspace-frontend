@@ -1,4 +1,4 @@
-import { Mail, Star, Trash2, RotateCcw } from 'lucide-react';
+import { Mail, Star, Trash2, RotateCcw, BadgeAlert } from 'lucide-react';
 
 export default function EmailCard({
     email,
@@ -41,6 +41,13 @@ export default function EmailCard({
                             {email.subject || 'No Subject'}
                         </h3>
 
+                        {email.isImportant && (
+                            <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-700">
+                                <BadgeAlert className="h-3 w-3" />
+                                Important
+                            </div>
+                        )}
+
                         <p className="mt-2 line-clamp-2 text-sm text-slate-600">
                             {email.body}
                         </p>
@@ -58,8 +65,8 @@ export default function EmailCard({
                 >
                     <Star
                         className={`h-5 w-5 transition-colors ${starredIds.includes(email.id)
-                                ? 'fill-yellow-400 text-yellow-400'
-                                : 'text-slate-400 hover:text-yellow-500'
+                            ? 'fill-yellow-400 text-yellow-400'
+                            : 'text-slate-400 hover:text-yellow-500'
                             }`}
                     />
                 </button>
